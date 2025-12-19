@@ -3,27 +3,27 @@ library(dplyr)
 library(stringr)
 # TODO Zeichenlimits für Textfelder?
 # TODO einlesen von ausgefüllter PDF
+# TODO arrays/dualscale typ richtig antwortformat auslesen und printen
 
 # Setup ----
 # TODO future function  arguments
 # Kommentar, dass Fragen durchnummeriert sein sollen, damit bedingter Text funktioniett
 # Fragen sollten den Schema GxxQxx folgen
-survey_id <- 253197
+# survey_id <- 253197
 # survey_id <- 969888
-# survey_id <- 475835
+survey_id <- 475835
 output_name <- "survey_test"
 welcome_text <- NULL
 end_text <- NULL
 included_questions <- NULL
-# groups_on_seperate_pages <- TRUE
-included_questions <- c("G01Q01", "G02Q02", "G02Q03", "G02Q04", "G03Q05",
-                        "G03Q06", "G03Q07", "G03Q08", "G04Q09", "G04Q10",
-                        "G04Q11", "G04Q12", "G05Q13", "G06Q15", "SQ001",
-                        "SQ002", "G06Q14")
-# questions_with_comments <- NULL
-questions_with_comments <- c("G01Q01", "G02Q02", "G02Q03", "G02Q04", "G03Q05",
-                             "G03Q06", "G03Q07", "G03Q08", "G04Q09", "G04Q10",
-                             "G04Q11", "G04Q12", "G05Q13")
+groups_on_seperate_pages <- TRUE
+# included_questions <- c("G01Q01", "G02Q02", "G02Q03", "G02Q04", "G03Q05",
+#                         "G03Q06", "G03Q07", "G03Q08", "G04Q09", "G04Q10",
+#                         "G04Q11", "G04Q12", "G05Q13", "G06Q15", "G06Q14")
+questions_with_comments <- NULL
+# questions_with_comments <- c("G01Q01", "G02Q02", "G02Q03", "G02Q04", "G03Q05",
+#                              "G03Q06", "G03Q07", "G03Q08", "G04Q09", "G04Q10",
+#                              "G04Q11", "G04Q12", "G05Q13")
 # TODO remove source after testing
 source("R/get_answer_options.R")
 source("../limesurvey/report_katastrophenschutz/get_session_key.R")
@@ -61,34 +61,21 @@ question_list$question_clean <- question_list$question %>%
   str_remove_all("\\\\r\\\\n|\\r\\n") %>%
   str_squish()
 
-if(!is.null(included_questions)){
-  question_list <- question_list %>%
-    filter(title %in% included_questions) %>%
-    arrange(factor(title, levels = included_questions))
-}else{
-  question_list <- question_list %>%
-    arrange(qid)
-}
-
 
 # Get answer options ----
 question_list$answers <- lapply(seq_len(nrow(question_list)), function(i) {
   current_qid <- question_list$qid[i]
 
-  # A. Check if this question HAS subquestions elsewhere in the table
-  # (This captures Multiple Choice, Multiple Short Text, etc.)
   sub_elements <- question_list$question[question_list$parent_qid == current_qid]
 
   if (length(sub_elements) > 0) {
     return(sub_elements)
   }
 
-  # B. If no internal subquestions, try your existing logic for Radio/Select options
   tryCatch({
     opts <- get_answer_options(current_qid)
     if (length(opts) > 0) return(opts)
 
-    # C. Final fallback to API if the subquestions aren't in the table for some reason
     subq <- limer::call_limer(
       "list_subquestions",
       params = list("iSurveyID" = survey_id, "iQuestionID" = current_qid)
@@ -98,8 +85,16 @@ question_list$answers <- lapply(seq_len(nrow(question_list)), function(i) {
     return(NULL)
   }, error = function(e) NULL)
 })
-question_list_final <- question_list[question_list$parent_qid == 0, ]
+question_list <- question_list[question_list$parent_qid == 0, ]
 
+if(!is.null(included_questions)){
+  question_list <- question_list %>%
+    filter(title %in% included_questions) %>%
+    arrange(factor(title, levels = included_questions))
+}else{
+  question_list <- question_list %>%
+    arrange(qid)
+}
 
 escape_tex <- function(x) {
   x %>%
@@ -211,6 +206,22 @@ question_blocks <- lapply(seq_len(nrow(question_list)), function(i) {
         block,
         "\\TextField[name=q", i, ", width=\\linewidth, height=1.5cm, multiline=true, bordercolor={0.8 0.8 0.8}]{}\\\\\n"
       )
+    } else if(current_question$question_theme_name %in% c("multipleshorttext")){
+      for (j in seq_along(answers)) {
+        a_text <- escape_tex(answers[j])
+
+        # Create a text field block
+        block <- paste0(
+          block,
+          "\\TextField[name=q", i, "_", j,
+          ", bordercolor={0.7 0.7 0.7}",
+          ", width=10cm",
+          ", height=2em",
+          ", charsize=10pt]{",
+          a_text, ": }",            # The label for the text box
+          "\\\\\n\\vspace{1mm}\n"  # Spacing between fields
+        )
+      }
     } else if(current_question$question_theme_name %in% c("image_select-multiplechoice",
                                                         "bootstrap_buttons_multi",
                                                         "multiplechoice",
