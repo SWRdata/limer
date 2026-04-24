@@ -86,19 +86,21 @@ export_survey_to_pdf <- function(survey_id,
                      groups_on_seperate_pages = TRUE,
                      character_limits = c("default" = 100)){
 
-  require(limer, dplyr, stringr)
+  invisible(lapply(c("limer", "dplyr", "stringr", "tinytex"),
+                   library, character.only = TRUE))
   # Helper function to remove HTML tags and other problematic characters
   cleanFun <- function(htmlString) {
-    return( gsub("_", "\\\\_",
-                 gsub('["""„“]', "",
-                      gsub("<.*?>", "", htmlString))))
+    htmlString %>%
+      gsub("<.*?>", "", .) %>%                  # strip HTML tags
+      gsub("\u200B|\u200C|\u200D|\uFEFF", "", .) %>%  # zero-width chars
+      gsub('["""„"]', "", .) %>%                # fancy quotes
+      gsub("_", "\\\\_", .)                     # escape underscores
   }
 
-  if(dir.exists(output_dir)) {
-    unlink(output_dir, recursive = TRUE)
+  if (!dir.exists(output_dir)) {
+    message("--- Create output directory ---")
+    dir.create(output_dir)
   }
-  message("--- Create output directory ---")
-  dir.create(output_dir)
 
   tex_file <- file.path(output_dir, paste0(output_name, ".tex"))
   pdf_file <- file.path(output_dir, paste0(output_name, ".pdf"))
@@ -128,20 +130,23 @@ export_survey_to_pdf <- function(survey_id,
     end_text <- cleanFun(survey_texts$surveyls_endtext)
   }
 
-  question_list <- call_limer("list_questions",
-                                     params = list("iSurveyID" = survey_id))
-  question_list$question_clean <- question_list$question %>%
+  question_list_full <- call_limer("list_questions",
+                                   params = list("iSurveyID" = survey_id))
+  question_list_full$question_clean <- question_list_full$question %>%
     stringr::str_remove_all("<[^>]+>") %>%
     stringr::str_remove_all("\\\\r\\\\n|\\r\\n") %>%
+    stringr::str_remove_all("\u200B|\u200C|\u200D|\uFEFF") %>%
     stringr::str_squish()
 
+  question_list <- question_list_full[question_list_full$parent_qid == 0, ]
 
   # Get answer options ----
   question_list$answers <- lapply(seq_len(nrow(question_list)), function(i) {
     current_qid <- question_list$qid[i]
 
-    sub_elements <- question_list$question[question_list$parent_qid ==
-                                             current_qid]
+    sub_elements <- question_list_full$question_clean[
+      question_list_full$parent_qid == current_qid
+    ]
 
     if (length(sub_elements) > 0) {
       return(sub_elements)
@@ -150,18 +155,9 @@ export_survey_to_pdf <- function(survey_id,
     tryCatch({
       opts <- get_answer_options(current_qid)
       if (length(opts) > 0) return(opts)
-
-      subq <- call_limer(
-        "list_subquestions",
-        params = list("iSurveyID" = survey_id, "iQuestionID" = current_qid)
-      )
-      if (!is.null(subq) && nrow(subq) > 0) return(subq$question)
-
       return(NULL)
     }, error = function(e) NULL)
   })
-  question_list <- question_list[question_list$parent_qid == 0, ]
-
   # Validate included_questions and questions_with_comments ----
     available_questions <- question_list$title
 
@@ -202,6 +198,7 @@ export_survey_to_pdf <- function(survey_id,
 
   escape_tex <- function(x) {
     x %>%
+      gsub("\u200B|\u200C|\u200D|\uFEFF", "", .) %>%
       stringr::str_replace_all("\\\\", "\\\\textbackslash ") %>%
       stringr::str_replace_all("([#$%&_{}])", "\\\\\\1") %>%
       stringr::str_replace_all("\\^", "\\\\textasciicircum ") %>%
@@ -279,9 +276,15 @@ export_survey_to_pdf <- function(survey_id,
         dplyr::filter(title == condition_question_code) %>%
         dplyr::pull(answers) %>% unlist()
       conditional_answer_text <- conditional_answers[condition_answer_code]
-      condition_text <- paste0("Beantworten Sie diese Frage nur, wenn Frage ",
-                               condition_question_numeral, " mit ",
-                               conditional_answer_text, " beantwortet wurde.")
+      if (grepl("is_empty", condition)) {
+        condition_text <- paste0("Beantworten Sie diese Frage nur, wenn Frage ",
+                                 condition_question_numeral,
+                                 " nicht beantwortet wurde.")
+      } else {
+        condition_text <- paste0("Beantworten Sie diese Frage nur, wenn Frage ",
+                                 condition_question_numeral, " mit ",
+                                 conditional_answer_text, " beantwortet wurde.")
+      }
 
       block <- paste0(block, " ", condition_text, "\\\\[0.5em]\n")
     }
@@ -415,19 +418,13 @@ export_survey_to_pdf <- function(survey_id,
   cat(full_latex, file = tex_file)
   # compile PDF (pdflatex needs to run in the output directory)
   message("--- Render PDF from LaTeX file ---")
-  old_wd <- getwd()          # save current working directory
-  setwd(output_dir)          # switch to output directory
+  old_wd <- getwd()
+  setwd(output_dir)
 
-  res <- system2(
-    command = Sys.which("pdflatex"),
-    args = basename(tex_file),
-    stdout = "pdflatex.log",
-    stderr = "pdflatex_err.log"
-  )
+  tinytex::pdflatex(basename(tex_file))
 
-  setwd(old_wd)              # restore original working directory
-
-  cat(paste(res, collapse = "\n"))
+  setwd(old_wd)
+  message("--- Done ---")
 }
 
 

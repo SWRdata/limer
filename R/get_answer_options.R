@@ -23,10 +23,8 @@ get_answer_options <- function(iQuestionID, sUsername = NULL) {
 
   # Check if answeroptions exist
   if (is.null(question_props$answeroptions) ||
-      length(question_props$answeroptions) == 0) {
-    if (verbose) {
-      message(glue::glue("No answer options found for question ID {iQuestionID}"))
-    }
+      length(question_props$answeroptions) == 0 ||
+      !is.list(question_props$answeroptions)) {
     return(character(0))
   }
 
