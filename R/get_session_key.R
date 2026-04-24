@@ -18,8 +18,7 @@ get_session_key <- function(username = getOption('lime_username'),
   body.json = list(
     method = "get_session_key",
     id = " ",
-    params = list(admin = username,
-                  password = password)
+    params = list(username, password)
   )
 
   # Need to use jsonlite::toJSON because single elements are boxed in httr, which
@@ -44,3 +43,4 @@ get_session_key <- function(username = getOption('lime_username'),
 # Start a new environment to hold the session key so all other functions can access it
 # See http://trestletech.com/2013/04/package-wide-variablescache-in-r-package/
 session_cache <- new.env(parent = emptyenv())
+

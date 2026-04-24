@@ -1,6 +1,3 @@
-
-
-
 #' import_survey_structure
 #'
 #' Import survey file in a known format into Limesurvey and create an inactive
