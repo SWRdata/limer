@@ -35,7 +35,9 @@ get_session_key <- function(username = getOption('lime_username'),
   )
 
   session_key <-
-    as.character(jsonlite::fromJSON(content(r, encoding = "utf-8"))$result)
+    # fixed
+    session_key <- as.character(jsonlite::fromJSON(httr::content(r,
+                                  as = "text", encoding = "utf-8"))$result)
   session_cache$session_key <- session_key
   session_key
 }
