@@ -93,5 +93,22 @@ copy_survey_to <- function(iSurveyID, DestSurveyID = NULL, keep_title = TRUE, ex
     }
   }
 
+  # Delete empty question groups
+  groups <- call_limer("list_groups", params = list(as.integer(new_id)))
+  remaining_questions <- call_limer("list_questions", params = list(as.integer(new_id)))
+
+  empty_groups <- groups[!groups$gid %in% remaining_questions$gid, ]
+
+  if (nrow(empty_groups) > 0) {
+    message("Deleting ", nrow(empty_groups), " empty group(s): ", paste(empty_groups$group_name, collapse = ", "))
+    for (gid in empty_groups$gid) {
+      tryCatch(
+        call_limer("delete_group", params = list(as.integer(new_id), as.integer(gid))),
+        error = function(e) warning("Could not delete group ", gid, ": ", conditionMessage(e), call. = FALSE)
+      )
+    }
+    message("Empty groups deleted")
+  }
+
   invisible(new_id)
 }
