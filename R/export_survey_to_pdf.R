@@ -164,7 +164,6 @@ export_survey_to_pdf <- function(survey_id,
   \\begin{center}
   {\\LARGE \\textbf{\\textcolor{swr_purple}{",
                          cleanFun(survey_texts$surveyls_title),"}}}\\\\[1em]
-  {\\large \\today}
   \\end{center}
   {", welcome_text,"}
 
