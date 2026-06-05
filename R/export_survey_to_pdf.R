@@ -199,26 +199,47 @@ export_survey_to_pdf <- function(survey_id,
       condition_text <- custom_conditions[[current_question$title]]
       block <- paste0(block, " ", condition_text, "\\\\[0.5em]\n")
     } else if (!is.null(condition) && condition != "" && condition != "1") {
-      condition_question_code <- stringr::str_extract(condition, "G\\d+Q\\d+")
-      condition_question_text <- question_list %>%
-        dplyr::filter(title == condition_question_code) %>%
-        dplyr::pull(question_clean)
-      condition_question_numeral <- stringr::str_extract(condition_question_text, "[^ ]+")
-      condition_answer_code <- stringr::str_extract(condition, "(?<=\")[^\"]+(?=\")")
-      conditional_answers <- question_list %>%
-        dplyr::filter(title == condition_question_code) %>%
-        dplyr::pull(answers) %>% unlist()
-      conditional_answer_text <- conditional_answers[condition_answer_code]
-      if (grepl("is_empty", condition)) {
-        condition_text <- paste0("Beantworten Sie diese Frage nur, wenn Frage ",
-                                 condition_question_numeral,
-                                 " nicht beantwortet wurde.")
-      } else {
-        condition_text <- paste0("Beantworten Sie diese Frage nur, wenn Frage ",
-                                 condition_question_numeral, " mit ",
-                                 conditional_answer_text, " beantwortet wurde.")
+
+      # Split condition into individual OR branches on " or " / "||"
+      # and discard any is_empty() branches (internal LimeSurvey NA logic)
+      raw_branches <- stringr::str_split(condition, "\\s+or\\s+|\\|\\|")[[1]]
+      raw_branches <- stringr::str_trim(raw_branches)
+      answer_branches <- raw_branches[!grepl("is_empty", raw_branches)]
+
+      if (length(answer_branches) > 0) {
+        # Extract one (question_code, answer_code) pair per remaining branch
+        branch_texts <- lapply(answer_branches, function(branch) {
+          qcode <- stringr::str_extract(branch, "G\\d+Q\\d+")
+          acode <- stringr::str_extract(branch, '(?<=")[^"]+(?=")')
+          if (is.na(qcode) || is.na(acode)) return(NULL)
+          q_text_raw <- question_list %>%
+            dplyr::filter(title == qcode) %>%
+            dplyr::pull(question_clean)
+          if (length(q_text_raw) == 0) return(NULL)
+          q_numeral <- stringr::str_extract(q_text_raw, "[^ ]+")
+          cond_answers <- question_list %>%
+            dplyr::filter(title == qcode) %>%
+            dplyr::pull(answers) %>% unlist()
+          a_text <- cond_answers[acode]
+          if (is.null(a_text) || is.na(a_text)) return(NULL)
+          paste0("Frage ", q_numeral, " mit \u201e", a_text, "\u201c beantwortet wurde")
+        })
+        branch_texts <- Filter(Negate(is.null), branch_texts)
+
+        if (length(branch_texts) > 0) {
+          if (length(branch_texts) == 1) {
+            condition_text <- paste0("Beantworten Sie diese Frage nur, wenn ",
+                                     branch_texts[[1]], ".")
+          } else {
+            condition_text <- paste0(
+              "Beantworten Sie diese Frage nur, wenn ",
+              paste(branch_texts, collapse = " oder "),
+              "."
+            )
+          }
+          block <- paste0(block, " ", condition_text, "\\\\[0.5em]\n")
+        }
       }
-      block <- paste0(block, " ", condition_text, "\\\\[0.5em]\n")
     }
 
     if(!is.na(current_question$question_theme_name)){
