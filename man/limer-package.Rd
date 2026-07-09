@@ -2,8 +2,8 @@
 % Please edit documentation in R/limer-package.R
 \docType{package}
 \name{limer-package}
-\alias{limer-package}
 \alias{limer}
+\alias{limer-package}
 \title{limer-package}
 \description{
 A LimeSurvey R Client
@@ -13,7 +13,15 @@ Provides access to LimeSurvey's RemoteControl 2 API, allowing
    you to collect and analyze survey data in a simple,
    reproducible workflow.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/cloudyr/limer}
+  \item Report bugs at \url{https://github.com/cloudyr/limer/issues}
+}
+
+}
 \author{
 Andrew Heiss <andrew@andrewheiss.com>
 }
-\keyword{package}
+\keyword{internal}

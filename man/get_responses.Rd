@@ -30,7 +30,7 @@ defaults to 'code'.}
 
 \item{sResponseType}{(optional)'short' or 'long'. defaults to 'short'}
 
-\item{\dots}{Further arguments to \code{\link{call_limer}}.}
+\item{\dots}{Further arguments passed to internal function \code{call_limer()}.}
 }
 \description{
 This function exports and downloads data from a LimeSurvey survey.

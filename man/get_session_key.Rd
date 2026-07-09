@@ -7,6 +7,7 @@
 get_session_key(
   username = getOption("lime_username"),
   password = getOption("lime_password"),
+  lime_api = getOption("lime_api"),
   ssl_verifypeer = FALSE
 )
 }
