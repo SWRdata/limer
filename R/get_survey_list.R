@@ -10,22 +10,27 @@
 #' @return dataframe, survey titles (names), or survey ids (sid)
 #' @export
 #' @references https://api.limesurvey.org/classes/remotecontrol_handle.html#method_list_surveys
-get_survey_list <- function(sUsername = NULL, names = FALSE, sid = TRUE){
-
-  res <- call_limer("list_surveys",
-                    params = list("sUsername" = sUsername)
+get_survey_list <- function(sUsername = NULL, names = FALSE, sid = TRUE) {
+  res <- call_limer(
+    "list_surveys",
+    params = list("sUsername" = sUsername)
   )
+
   if ("status" %in% colnames(res) && res$status == "No surveys found") {
-    data <- data.frame(sid = NA, surveyls_title = NA, startdate = NA, expires = NA, active = NA )
-    warning("no surveys found!", call. = F)
+    warning("no surveys found!", call. = FALSE)
+    return(data.frame(
+      sid = NA, surveyls_title = NA, startdate = NA,
+      expires = NA, active = NA
+    ))
   }
 
-  if (names)
+  if (names) {
     return(res$surveyls_title)
-
-  if (sid)
+  }
+  if (sid) {
     return(res$sid)
+  }
 
-  return(data)
+  return(res)
 }
 

@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 drat.sh
 ^\.travis\.yml$
+^\.positai$
+^\.claude$

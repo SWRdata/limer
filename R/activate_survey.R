@@ -5,8 +5,9 @@
 #' @param iSurveyID integer, Id of the survey to be activated
 #' @param verbose boolean, Giving out logging info
 #'
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+#' @example activate_survey("475835", verbose = TRUE)
 #' @export
-#' @references https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey
 
 activate_survey <- function(iSurveyID, verbose = FALSE) {
   iSurveyID <- as.numeric(iSurveyID) %>% suppressWarnings()
@@ -25,7 +26,8 @@ activate_survey <- function(iSurveyID, verbose = FALSE) {
   } else if (msg == "No permission") {
     stop(
       glue::glue(
-        "Either the survey with the ID \u00b4{iSurveyID}\u00b4 does not exist or the permission to activate it is missing!"
+        "Either the survey with the ID \u00b4{iSurveyID}\u00b4 does not exist ",
+        "or the permission to activate it is missing!"
       ),
       call. = F
     )

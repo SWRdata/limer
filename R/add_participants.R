@@ -4,11 +4,16 @@
 #' Adds participants to a survey
 #'
 #' @param iSurveyID integer, ID of the Survey to insert responses
-#' @param data dataframe with the columns firstname, lastname, email and token
+#' @param data dataframe with the columns firstname, lastname and email
 #' @param bCreateToken boolean Should tokens be created
 #' @param chunksize integer, size of chunks for handling php memory problems
 #'
 #' @return API Response
+#' @example add_participants(475835, data = data.frame(firstname = c("Max",
+#'                                                                   "Moritz"),
+#'                           lastname = c("Mustermann", "Müller"),
+#'                           email = c("m@aol.de", "m@gmx.de")),
+#'                           bCreateToken = TRUE)
 #' @export
 #'
 

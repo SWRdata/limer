@@ -1,5 +1,3 @@
-
-
 #' activate_tokens
 #'
 #' Initialise the survey participant table of a survey where new participant
@@ -11,6 +9,8 @@
 #' attribute fields
 #'
 #' @return status
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+#' @example activate_tokens("475835", aAttributeFields = list(1,2))
 #' @export
 
 activate_tokens <- function(iSurveyID, aAttributeFields = NULL) {
@@ -19,7 +19,8 @@ activate_tokens <- function(iSurveyID, aAttributeFields = NULL) {
   resp <- tryCatch({
     call_limer(method = "activate_tokens", params = params)
   }, error = function(e) {
-      stop(gsub("^.*: [0-9]+|The SQL.*","",  e[["message"]]) %>% trimws(), call. = F)
+      stop(gsub("^.*: [0-9]+|The SQL.*","",  e[["message"]]) %>% trimws(),
+           call. = F)
   })
   return(resp %>% unlist())
 }

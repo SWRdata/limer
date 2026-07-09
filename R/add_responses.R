@@ -8,9 +8,10 @@
 #' @param verbose boolean, Giving out logging info
 #' @param data dataframe, The actual response(s)
 #' @importFrom rlang .data
-#' @export
 #'
 #' @references https://api.limesurvey.org/classes/remotecontrol_handle.html#method_add_response
+#' @export
+
 add_responses <- function(iSurveyID, data, verbose = FALSE) {
   if (!inherits(data, "data.frame"))
     stop("Data must be of type data.frame", call. = F)
@@ -73,7 +74,6 @@ add_responses <- function(iSurveyID, data, verbose = FALSE) {
                                  "aResponseData" = x))
       }
     )
-
 
   if ((length(res) == nrow(data)) &
       verbose & all(!is.na(res %>% as.numeric()))) {
