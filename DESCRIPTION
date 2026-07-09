@@ -20,11 +20,12 @@ Imports:
     rlang,
     stringr, 
     tidyr,
+    tinytex,
     utils,
     xml2
 License: MIT + file LICENSE
 LazyData: TRUE
 URL: https://github.com/cloudyr/limer
 BugReports: https://github.com/cloudyr/limer/issues
-RoxygenNote: 7.2.3
 Suggests: testthat
+Config/roxygen2/version: 8.0.0
