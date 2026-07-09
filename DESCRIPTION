@@ -29,4 +29,3 @@ URL: https://github.com/cloudyr/limer
 BugReports: https://github.com/cloudyr/limer/issues
 Suggests: testthat
 Config/roxygen2/version: 8.0.0
-RoxygenNote: 7.3.3
