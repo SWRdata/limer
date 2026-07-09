@@ -14,6 +14,10 @@
 #' @export
 
 activate_tokens <- function(iSurveyID, aAttributeFields = NULL) {
+
+  if (!is.null(aAttributeFields) && is.integer(aAttributeFields))
+    aAttributeFields <- 1:aAttributeFields
+
   params <- list("iSurveyID" = iSurveyID, "aAttributeFields" = aAttributeFields)
 
   resp <- tryCatch({

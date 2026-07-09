@@ -11,18 +11,30 @@
 #' @return API Response
 #' @export
 #'
+#' @references https://api.limesurvey.org/classes/remotecontrol_handle.html#method_add_participants
 
 add_participants <- function(iSurveyID, data, bCreateToken = F, chunksize = 200){
 
-    if (!exists_participants_table(iSurveyID)) {
-      warning("No participant table found and a new one created", call. = F)
+  default_fields <- c("email", "firstname", "lastname")
+  fields <- colnames(data)
 
-      n <- length(colnames(data))
-      field_names <- glue::glue("description_attribute_{1:n}")
-      fields <- colnames(data)
-      names(fields) = field_names
-      create_participants_table(iSurveyID, aAttributeFields = fields)
-    }
+  # how many custom attributes are there?
+  n_fields <- sum(!fields %in% default_fields)
+
+  # Test if the usual default attributes are set
+  if (!any(default_fields %in% fields)) {
+
+    answer <- readline(prompt = "None of the usual attributes `firstname`, `lastname` or `email` are present in data. Continue anyway (y)?")
+    if (tolower(answer) != "y")
+      return("No participants were added")
+  }
+
+  if (!exists_participants_table(iSurveyID)) {
+
+      create_participants_table(iSurveyID, aAttributeFields = ifelse(n_fields > 0, n_fields, NULL) )
+
+      warning("No participant table found and a new one created", call. = F)
+  }
 
   # if data is a character vector
   if (inherits(data, "character")) {
@@ -58,12 +70,29 @@ add_participants <- function(iSurveyID, data, bCreateToken = F, chunksize = 200)
 
     resp <- call_limer(method = "add_participants", params = params)
     resp <- data.table::rbindlist(resp, fill = T) %>% suppressWarnings()
-    if ("errors" %in% colnames(resp))
-      warning("there were errors when adding participants among others. ", resp$errors[[1]], call. = F)
+    if ("errors" %in% colnames(resp)) {
+      # Which elements contain an error
+      err_elements <- which(sapply(resp$errors, function(x) !is.null(x)))
+      e <- paste("Element",err_elements, "contains error:",resp$errors %>% unlist(), collapse = "\n")
+      warning("there were errors when adding participants among others.\n ", e, call. = F)
+    }
+
     # set count
     limit <- limit + chunksize + 1
     cat("\r",round((i/n)*100, digits = 2), "%")
     utils::flush.console()
+  }
+
+  if (n_fields > 0) {
+    # names of additional attributes
+    descriptions <- fields[!fields %in% default_fields]
+    descriptions <- sanitize_string(descriptions)
+
+    params <-
+      list("iSurveyID" = iSurveyID, "aAttributeFields" = descriptions)
+
+    resp <- call_limer("update_token_description", params = params)
+
   }
 
   cat("\r")
@@ -71,3 +100,10 @@ add_participants <- function(iSurveyID, data, bCreateToken = F, chunksize = 200)
 
 }
 
+
+# TODO
+# Gleiche die Spalten der bisherigen Tabelle mit den neu hinzuzufügenden ab
+# und gebe eine Warnung aus, wenn sie nicht übereinstimmen.
+# Fehlende Spalten werden wie importiert?
+# Die Felder müssen in der UI vorher angelegt sein, um korrekt importiert
+# werden zu können.
