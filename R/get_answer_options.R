@@ -11,7 +11,7 @@
 #'
 get_answer_options <- function(iQuestionID, sUsername = NULL) {
   # Get question properties from LimeSurvey
-  question_props <- limer::call_limer(
+  question_props <- call_limer(
     "get_question_properties",
     params = list("iQuestionID" = iQuestionID)
   )
@@ -23,8 +23,8 @@ get_answer_options <- function(iQuestionID, sUsername = NULL) {
 
   # Check if answeroptions exist
   if (is.null(question_props$answeroptions) ||
-      length(question_props$answeroptions) == 0 ||
-      !is.list(question_props$answeroptions)) {
+    length(question_props$answeroptions) == 0 ||
+    !is.list(question_props$answeroptions)) {
     return(character(0))
   }
 

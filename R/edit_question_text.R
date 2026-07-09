@@ -4,7 +4,7 @@ edit_question_text <- function(survey_id,
                                language = "de") {
   survey_id <- as.integer(survey_id)
   if (is.na(survey_id))
-    stop("Invalid survey_id — must be a numeric survey ID.", call. = FALSE)
+    stop("Invalid survey_id \u2014 must be a numeric survey ID.", call. = FALSE)
   if (!nzchar(new_text))
     stop("new_text must be a non-empty string.", call. = FALSE)
 
