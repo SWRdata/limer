@@ -6,7 +6,10 @@
 #' @param verbose boolean, Giving out logging info
 #'
 #' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
-#' @example activate_survey("475835", verbose = TRUE)
+#' @examples
+#' \dontrun{
+#' activate_survey("475835", verbose = TRUE)
+#' }
 #' @export
 
 activate_survey <- function(iSurveyID, verbose = FALSE) {

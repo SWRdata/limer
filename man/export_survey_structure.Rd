@@ -2,32 +2,33 @@
 % Please edit documentation in R/export_survey_structure.R
 \name{export_survey_structure}
 \alias{export_survey_structure}
-\title{Export LSS File from a LimeSurvey survey}
+\title{export_survey_structure}
 \usage{
 export_survey_structure(iSurveyID, filename = NULL, verbose = FALSE)
 }
 \arguments{
-\item{iSurveyID}{\dots}
+\item{iSurveyID}{integer, ID of the survey to export}
 
-\item{filename}{\dots}
+\item{filename}{string or NULL, path to save the .lss file to. If NULL
+(default), saves as \verb{limesurvey_survey_{iSurveyID}.lss} in the current
+working directory. A ".lss" extension is appended automatically if
+missing.}
 
 \item{verbose}{boolean, Giving out logging info}
 }
-\description{
-This function exports a survey structure (LSS).
+\value{
+invisible path to the saved .lss file
 }
-\note{
-This function requires that the patch has been implemented in the
-remotecontrol_handle.php file of your Limesurvey installation.
-application/helpers/remotecontrol/remotecontrol_handle.php
-system.file("patch.php", package="limer")
-See @references
+\description{
+Exports the structure (.lss file) of a survey - groups, questions,
+answers, and conditions, but no response data. Uses the LimeSurvey admin
+web UI's built-in export feature (Tools > Export > Umfrage-Struktur)
+rather than the RemoteControl API, since the RPC method for this
+requires an unofficial server-side patch that most installations won't
+have.
 }
 \examples{
 \dontrun{
-export_survey_structure(12345)
+export_survey_structure(475835)
 }
-}
-\references{
-https://bugs.limesurvey.org/view.php?id=17747
 }

@@ -16,6 +16,10 @@ get_session_key(
 
 \item{password}{LimeSurvey password Defaults to value set in \code{options()}.}
 
+\item{lime_api}{string, URL of the LimeSurvey RemoteControl API endpoint.
+Defaults to the value set via \code{options(lime_api = ...)}; if unset,
+falls back to the SWR Medienanfragen installation's endpoint.}
+
 \item{ssl_verifypeer}{boolean \code{httr::config()} parameter. Default is
 FALSE.}
 }
@@ -29,4 +33,7 @@ This function logs into the LimeSurvey API and provides an access session key.
 \dontrun{
 get_session_key()
 }
+}
+\references{
+\url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_get_session_key}
 }

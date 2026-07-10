@@ -20,6 +20,11 @@ dataframe, survey titles (names), or survey ids (sid)
 If user is admin he can get surveys of every user (parameter sUsername) or
 all surveys (sUsername=null).
 }
+\examples{
+\dontrun{
+get_survey_list(sid = FALSE)
+}
+}
 \references{
 https://api.limesurvey.org/classes/remotecontrol_handle.html#method_list_surveys
 }

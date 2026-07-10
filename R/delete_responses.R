@@ -8,8 +8,12 @@
 #' all.
 #'
 #' @return -
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+#' @examples
+#' \dontrun{
+#' delete_responses(475835)
+#' }
 #' @export
-#'
 
 delete_responses <- function(iSurveyID, iResponseIDs = NULL, verbose = FALSE ) {
 
@@ -25,21 +29,16 @@ delete_responses <- function(iSurveyID, iResponseIDs = NULL, verbose = FALSE ) {
     } else{
       iResponseIDs <- 1
     }
-
-
   }
-
 
   del_response <- function(x, iSurveyID){
 
     call_limer("delete_response",
                params = list("iSurveyID" = iSurveyID,
                              "iResponseIDs" = x))
-
   }
 
   res <- lapply(iResponseIDs, FUN = function(x) del_response(x,iSurveyID ) )
-
 
   if (any(res %>% unlist() == "Response Id not found") & verbose) {
     message("one or more Id was not found and could not be deleted")

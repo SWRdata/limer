@@ -9,12 +9,23 @@ add_responses(iSurveyID, data, verbose = FALSE)
 \arguments{
 \item{iSurveyID}{integer, ID of the Survey to insert responses}
 
-\item{data}{dataframe, The actual response(s)}
+\item{data}{dataframe, The actual response(s). Column names should be the
+short question codes (e.g. "G01Q03") as shown in survey exports; these
+are automatically translated to LimeSurvey's internal field names
+(format \\verb{{iSurveyID}X{gid}X{qid}}) before submission."}
 
 \item{verbose}{boolean, Giving out logging info}
 }
 \description{
 Inserts one or more answers into an answer table of a survey
+}
+\examples{
+\dontrun{
+responses_df <- data.frame(G01Q03 = c("1", "5"),
+                                    G01Q04 = c("AO01", "AO03"),
+                                    stringsAsFactors = FALSE)
+add_responses(iSurveyID = 475835, data = responses_df, verbose = TRUE)
+}
 }
 \references{
 https://api.limesurvey.org/classes/remotecontrol_handle.html#method_add_response

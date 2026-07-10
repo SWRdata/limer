@@ -19,3 +19,6 @@ mail_registered_participant
 mail_registred_participant(iSurveyID = 123456, tid = 2)
 }
 }
+\references{
+\url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+}

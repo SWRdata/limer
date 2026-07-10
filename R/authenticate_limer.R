@@ -6,6 +6,10 @@
 #'
 #' @param ssl_verifypeer boolean, httr::config parameter for API call
 #' @return message
+#' @examples
+#' \dontrun{
+#' authenticate_limer()
+#' }
 #' @export
 #'
 

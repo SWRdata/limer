@@ -14,3 +14,6 @@ This function clears the LimeSurvey API session key currently in use, effectivel
 release_session_key()
 }
 }
+\references{
+\url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+}

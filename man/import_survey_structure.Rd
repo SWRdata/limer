@@ -12,18 +12,35 @@ import_survey_structure(
 )
 }
 \arguments{
-\item{sImportData}{string, path to file}
+\item{sImportData}{string, path to the structure file to import}
 
-\item{sNewSurveyName}{string, The optional new name of the survey}
+\item{sNewSurveyName}{string or NULL, the name to give the imported
+survey. If NULL, the title is read from the file's own
+`<surveyls_title>` node.}
 
-\item{DestSurveyID}{integer This is the new ID of the survey - if already
-used a random one will be taken instead}
+\item{DestSurveyID}{integer or NULL, the survey ID to import into. If
+NULL and the file is a .lss, the ID is auto-extracted from the file's
+own group rows.}
 
 \item{verbose}{boolean, Giving out logging info}
 }
 \description{
-Import survey file in a known format into Limesurvey and create an inactive
-survey with it.
+Imports a survey structure file (.lss) into LimeSurvey, creating a new
+inactive survey from it. If no destination survey ID is given, one is
+extracted automatically from the .lss file itself; if a survey already
+exists at that ID, it is deleted first and replaced by the import.
+}
+\examples{
+\dontrun{
+export_survey_structure(475835,
+                       filename = "backup_475835.lss",
+                       verbose = TRUE)
+import_survey_structure(
+ sImportData = "backup_475835.lss",
+ sNewSurveyName = "Restored from backup",
+ DestSurveyID = 475836,
+ verbose = TRUE)
+}
 }
 \references{
 https://api.limesurvey.org/classes/remotecontrol_handle.html#method_import_survey

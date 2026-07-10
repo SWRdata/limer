@@ -20,3 +20,8 @@ around the RemoteControl API by scraping and reusing the admin web
 session, since token generation for existing participants is not exposed
 via the standard RPC methods.
 }
+\examples{
+\dontrun{
+add_participant_codes(475835)
+}
+}

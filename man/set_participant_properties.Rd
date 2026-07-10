@@ -27,3 +27,15 @@ none
 Allow to set properties about a specific participant, only one
 participant can be updated.
 }
+\examples{
+\dontrun{
+set_participant_properties(iSurveyID = 475835,
+                                     aTokenQueryProperties = list(tid = 1),
+                                     aTokenData = list(email = "max.neu@aol.de",
+                                                       completed = "Y"),
+                                     verbose = TRUE)
+}
+}
+\references{
+\url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+}

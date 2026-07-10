@@ -15,3 +15,11 @@ boolean
 \description{
 checks if a participant table already exists
 }
+\examples{
+\dontrun{
+exists_participants_table(475835)
+}
+}
+\references{
+\url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+}

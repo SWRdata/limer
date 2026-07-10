@@ -2,32 +2,33 @@
 % Please edit documentation in R/export_survey_archive.R
 \name{export_survey_archive}
 \alias{export_survey_archive}
-\title{Export LSA File from a LimeSurvey survey}
+\title{export_survey_archive}
 \usage{
 export_survey_archive(iSurveyID, filename = NULL, verbose = FALSE)
 }
 \arguments{
-\item{iSurveyID}{\dots}
+\item{iSurveyID}{integer, ID of the survey to export}
 
-\item{filename}{\dots}
+\item{filename}{string or NULL, path to save the .lsa file to. If NULL
+(default), saves as \verb{limesurvey_survey_{iSurveyID}.lsa} in the current
+working directory.}
 
 \item{verbose}{boolean, Giving out logging info}
 }
-\description{
-This function exports a survey archive (LSA).
+\value{
+invisible path to the saved .lsa file
 }
-\note{
-This function requires that the patch has been implemented in the
-remotecontrol_handle.php file of your Limesurvey installation.
-application/helpers/remotecontrol/remotecontrol_handle.php
-system.file("patch.php", package="limer")
-See @references
+\description{
+Exports a survey archive (.lsa file) for a survey, including its
+structure, responses, and settings. Uses the LimeSurvey admin web UI's
+built-in export feature (Tools > Export > Umfragearchiv) rather than
+the RemoteControl API, since the RPC method for this requires an
+unofficial server-side patch that most installations won't have.
 }
 \examples{
 \dontrun{
-export_survey_archive(12345)
+export_survey_archive(475835,
+                                filename = "archive_example.lsa",
+                                verbose = TRUE)
 }
-}
-\references{
-https://bugs.limesurvey.org/view.php?id=17747
 }

@@ -4,7 +4,7 @@
 \alias{delete_survey}
 \title{delete_survey}
 \usage{
-delete_survey(iSurveyID, verbose)
+delete_survey(iSurveyID, verbose = FALSE)
 }
 \arguments{
 \item{iSurveyID}{integer, Id of the survey to be deleted}
@@ -13,6 +13,12 @@ delete_survey(iSurveyID, verbose)
 }
 \description{
 Deletes a survey and all its data
+}
+\examples{
+\dontrun{
+new_id <- copy_survey_to(iSurveyID = 475835, exclude_qids = c("G01Q03", "G01Q04"))
+delete_survey(new_id)
+}
 }
 \references{
 https://api.limesurvey.org/classes/Survey.html#method_deleteSurvey

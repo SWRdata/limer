@@ -15,6 +15,12 @@ lhs \%>\% rhs
 The result of calling `rhs(lhs)`.
 }
 \description{
+`limer` uses the magrittr pipe throughout its functions (e.g. chaining
+`dplyr::filter()`/`dplyr::pull()` calls on survey data). This operator
+is re-exported so it's available to users of the package without
+requiring a separate `library(magrittr)` call.
+}
+\details{
 See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
 }
 \keyword{internal}

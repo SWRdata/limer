@@ -13,8 +13,10 @@
 #' @param \dots Further arguments passed to internal function \code{call_limer()}.
 #' @export
 #' @examples \dontrun{
-#' get_responses(12345)
+#' get_responses(475835)
 #' }
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+
 get_responses <- function(iSurveyID, sDocumentType = "csv", sLanguageCode = NULL,
                           sCompletionStatus = "complete", sHeadingType = "code",
                           sResponseType = "long", ...) {

@@ -37,6 +37,9 @@ This function exports and downloads data from a LimeSurvey survey.
 }
 \examples{
 \dontrun{
-get_responses(12345)
+get_responses(475835)
 }
+}
+\references{
+\url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
 }

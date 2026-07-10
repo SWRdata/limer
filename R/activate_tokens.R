@@ -10,7 +10,10 @@
 #'
 #' @return status
 #' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
-#' @example activate_tokens("475835", aAttributeFields = list(1,2))
+#' @examples
+#' \dontrun{
+#' activate_tokens("475835", aAttributeFields = list(1, 2))
+#' }
 #' @export
 
 activate_tokens <- function(iSurveyID, aAttributeFields = NULL) {

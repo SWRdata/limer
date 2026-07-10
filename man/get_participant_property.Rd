@@ -4,7 +4,11 @@
 \alias{get_participant_property}
 \title{Get a participant property from a LimeSurvey survey}
 \usage{
-get_participant_property(iSurveyID, aTokenQueryProperties, aTokenProperties)
+get_participant_property(
+  iSurveyID,
+  aTokenQueryProperties,
+  aTokenProperties = NULL
+)
 }
 \arguments{
 \item{iSurveyID}{\dots}
@@ -19,7 +23,10 @@ survey.
 }
 \examples{
 \dontrun{
-get_participant_property(iSurveyID = 12345, aTokenQueryProperties = 1, +
-aTokenProperties = list("attribute_1"))
+get_participant_property(iSurveyID = 475835,
+                                   aTokenQueryProperties = 1)
 }
+}
+\references{
+\url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
 }

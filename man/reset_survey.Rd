@@ -13,18 +13,24 @@ reset_survey(
 )
 }
 \arguments{
-\item{iSurveyID}{integer, Id of the survey that will be reset}
+\item{iSurveyID}{integer, ID of the survey to reset (or copy from)}
 
-\item{sImportData}{string, Path to the file. If not set, the previous survey
-is re-imported in its previous structure}
+\item{sImportData}{string, path to a structure file (.lss) to import.
+If not set, the survey's current structure is exported and re-imported
+as-is.}
 
-\item{sNewSurveyName}{String, if not set the previous name is used (optional)}
+\item{sNewSurveyName}{string, name for the resulting survey. If not
+set, the name from `sImportData` (or the survey's current name) is used.}
 
-\item{DestSurveyID}{string, Id of the copied survey (optional)}
+\item{DestSurveyID}{integer, ID to import into. If not set, defaults to
+`iSurveyID`, resetting the survey in place.}
 
-\item{verbose}{boolean, Giving out logging info}
+\item{verbose}{boolean, giving out logging info}
 }
 \description{
-Resets or copy a survey to its original state by deleting the existing
-survey and re-importing it.
+Resets or copies a survey to its original state by re-importing its
+structure. If no destination ID is given, resets the survey in place
+(the existing survey at `iSurveyID` is replaced); if a destination ID
+is given, creates a fresh copy there instead, leaving the original
+untouched.
 }

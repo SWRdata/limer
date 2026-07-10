@@ -20,3 +20,11 @@ all.}
 \description{
 Deletes one or more responses
 }
+\examples{
+\dontrun{
+delete_responses(475835)
+}
+}
+\references{
+\url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+}

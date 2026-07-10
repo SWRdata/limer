@@ -7,6 +7,11 @@
 #' @param sUsername character, Username in Limesurvey installation
 #'
 #' @return Named character vector with answer codes as names and answer text as values
+#' @examples
+#' \dontrun{
+#' answers <- get_answer_options(671)
+#'           answers
+#' }
 #' @export
 #'
 get_answer_options <- function(iQuestionID, sUsername = NULL) {

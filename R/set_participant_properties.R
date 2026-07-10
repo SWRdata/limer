@@ -8,8 +8,16 @@
 #' @param aTokenData list, key-value-pair of attribute name an value
 #' @param verbose boolean, Giving out logging info
 #' @return none
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+#' @examples
+#' \dontrun{
+#' set_participant_properties(iSurveyID = 475835,
+#'                                      aTokenQueryProperties = list(tid = 1),
+#'                                      aTokenData = list(email = "max.neu@aol.de",
+#'                                                        completed = "Y"),
+#'                                      verbose = TRUE)
+#' }
 #' @export
-#'
 
 set_participant_properties <- function(iSurveyID, aTokenQueryProperties,
                                        aTokenData, verbose = FALSE) {

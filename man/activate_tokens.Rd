@@ -23,6 +23,11 @@ status
 Initialise the survey participant table of a survey where new participant
 tokens may be later added.
 }
+\examples{
+\dontrun{
+activate_tokens("475835", aAttributeFields = list(1, 2))
+}
+}
 \references{
 \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
 }

@@ -3,6 +3,9 @@
 #' This function logs into the LimeSurvey API and provides an access session key.
 #' @param username LimeSurvey username. Defaults to value set in \code{options()}.
 #' @param password LimeSurvey password Defaults to value set in \code{options()}.
+#' @param lime_api string, URL of the LimeSurvey RemoteControl API endpoint.
+#' Defaults to the value set via \code{options(lime_api = ...)}; if unset,
+#' falls back to the SWR Medienanfragen installation's endpoint.
 #' @param ssl_verifypeer boolean \code{httr::config()} parameter. Default is
 #' FALSE.
 #' @return API token
@@ -11,6 +14,8 @@
 #' @examples \dontrun{
 #' get_session_key()
 #' }
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_get_session_key}
+
 get_session_key <- function(
   username = getOption("lime_username"),
   password = getOption("lime_password"),

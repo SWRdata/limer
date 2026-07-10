@@ -14,6 +14,11 @@ activate_survey(iSurveyID, verbose = FALSE)
 \description{
 Sets the status of a survey to active
 }
+\examples{
+\dontrun{
+activate_survey("475835", verbose = TRUE)
+}
+}
 \references{
 \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
 }

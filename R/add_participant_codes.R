@@ -10,7 +10,10 @@
 #' should be generated
 #'
 #' @return invisible httr response object from the tokenify request
-#' @example add_participant_codes(475835)
+#' @examples
+#' \dontrun{
+#' add_participant_codes(475835)
+#' }
 #' @export
 
 add_participant_codes <- function(iSurveyID) {

@@ -2,29 +2,45 @@
 % Please edit documentation in R/get_participants.R
 \name{get_participants}
 \alias{get_participants}
-\title{Export list of participants from a LimeSurvey survey}
+\title{get_participants}
 \usage{
-get_participants(iSurveyID, iStart = 1, iLimit, bUnused, aAttributes)
+get_participants(
+  iSurveyID,
+  bUnused = TRUE,
+  iStart = 1,
+  iLimit = 100,
+  tid = FALSE,
+  chunksize = 5000,
+  ...
+)
 }
 \arguments{
-\item{iSurveyID}{\dots}
+\item{iSurveyID}{integer, ID of the Survey to retrieve participants from}
 
-\item{iStart}{\dots}
+\item{bUnused}{boolean, if TRUE, only unused tokens are returned}
 
-\item{iLimit}{\dots}
+\item{iStart}{integer, start id of the token list}
 
-\item{bUnused}{\dots}
+\item{iLimit}{integer, number of participants to return}
 
-\item{aAttributes}{\dots}
+\item{tid}{boolean, if TRUE, includes the tid column in the result}
+
+\item{chunksize}{integer, size of chunks used to split large requests
+and avoid php memory problems}
+
+\item{...}{ellipsis parameters passed on to call_limer}
+}
+\value{
+dataframe of participant data
 }
 \description{
-This function exports and downloads the list of participants from a LimeSurvey survey.
+Retrieves the list of participants of a survey. Large requests are
+automatically split into chunks to avoid PHP memory issues on the
+LimeSurvey server.
 }
 \examples{
 \dontrun{
-get_participants(12345, iStart=1, iLimit=10, bUnused=FALSE,
-                                   aAttributes=c('attribute_1','attribute_2'))
-get_participants(12345, iStart=1, iLimit=10, bUnused=FALSE, aAttributes=FALSE)
+get_participants(475835)
 }
 }
 \references{

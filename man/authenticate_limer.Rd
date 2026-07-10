@@ -17,3 +17,8 @@ Authenticates a user session to a Limesurvey instance. The function
 requires that the parameters LIME_USERNAME, LIME_PASSOWRD and
 LIME_API_URL are set in the system environment in .Renviron.
 }
+\examples{
+\dontrun{
+authenticate_limer()
+}
+}

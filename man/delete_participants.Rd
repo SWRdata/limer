@@ -8,7 +8,8 @@ delete_participants(
   iSurveyID,
   aTokenIDs = NULL,
   max_id = 1e+06,
-  chunksize = 5000
+  chunksize = 5000,
+  ask = TRUE
 )
 }
 \arguments{
@@ -20,7 +21,18 @@ delete_participants(
 deleted? only necessary if aTokenIDs is NULL}
 
 \item{chunksize}{integer, size of chunks for handling php memory problems}
+
+\item{ask}{boolean, if TRUE (default) asks for interactive confirmation
+before deleting. Set to FALSE for non-interactive/scripted use.}
 }
 \description{
 delete participants from a survey by id
+}
+\examples{
+\dontrun{
+delete_participants(475835)
+}
+}
+\references{
+\url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_delete_participants}
 }

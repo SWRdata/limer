@@ -4,3 +4,16 @@ drat.sh
 ^\.travis\.yml$
 ^\.positai$
 ^\.claude$
+^archive_example\.lsa$
+^backup_475835\.lss$
+^limesurvey_survey_475835\.lss$
+^out\.json$
+^parsed_responses\.csv$
+^reporteR$
+^survey_fulltext\.txt$
+^survey_long\.csv$
+^survey_wide\.csv$
+^texput\.log$
+^%$
+^CONTRIBUTING\.md$
+^LICENSE\.md$

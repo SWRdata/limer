@@ -4,25 +4,39 @@
 \alias{get_response_table_columns}
 \title{get_response_table_columns}
 \usage{
-get_response_table_columns(iSurveyID, verbose = FALSE, sHeadingType = "full")
+get_response_table_columns(
+  iSurveyID,
+  verbose = FALSE,
+  sHeadingType = "code",
+  sLanguageCode = "de"
+)
 }
 \arguments{
 \item{iSurveyID}{integer, Id of the survey}
 
 \item{verbose}{boolean, Giving out logging info}
 
-\item{sHeadingType}{character, "full" returns the complete text of the
-questions, "complete" returns the code. Default = "full"}
+\item{sHeadingType}{character, heading style for the returned column
+names: "code" returns short question codes (e.g. "G01Q03"), "full"
+returns the complete question text, "abbreviated" returns a
+truncated/abbreviated version of the question text. Default = "code"}
+
+\item{sLanguageCode}{character, language code to export in. Must match
+one of the survey's configured languages. Default = "de"}
 }
 \value{
-String vector
+character vector of column names
 }
 \description{
-Returns the column names of the response table
+Returns the column names of a survey's response table, as they would
+appear in an exported response CSV. Uses the standard export_responses
+RPC method rather than get_responses, since get_responses requires an
+unofficial server-side patch that most installations won't have.
 }
-\note{
-This function requires that the patch has been implemented in the
-remotecontrol_handle.php file of your Limesurvey installation.
-application/helpers/remotecontrol/remotecontrol_handle.php
-system.file("patch.php", package="limer")
+\examples{
+\dontrun{
+get_response_table_columns(475835,
+                                     verbose = TRUE,
+                                     sHeadingType = "full")
+}
 }

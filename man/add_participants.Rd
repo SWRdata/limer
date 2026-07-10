@@ -4,7 +4,13 @@
 \alias{add_participants}
 \title{add_participants}
 \usage{
-add_participants(iSurveyID, data, bCreateToken = F, chunksize = 200)
+add_participants(
+  iSurveyID,
+  data,
+  bCreateToken = F,
+  chunksize = 200,
+  ask = TRUE
+)
 }
 \arguments{
 \item{iSurveyID}{integer, ID of the Survey to insert responses}
@@ -14,12 +20,26 @@ add_participants(iSurveyID, data, bCreateToken = F, chunksize = 200)
 \item{bCreateToken}{boolean Should tokens be created}
 
 \item{chunksize}{integer, size of chunks for handling php memory problems}
+
+\item{ask}{boolean, if TRUE (default) and none of the usual attributes
+are present, asks for interactive confirmation before continuing. Set
+to FALSE for non-interactive/scripted use.}
 }
 \value{
-API Response
+data.frame combining the API's per-participant results across
+all chunks (includes an `errors` column when applicable)
 }
 \description{
 Adds participants to a survey
+}
+\examples{
+\dontrun{
+add_participants(475835, data = data.frame(
+  firstname = c("Max", "Moritz"),
+  lastname = c("Mustermann", "Müller"),
+  email = c("m@aol.de", "m@gmx.de")
+), bCreateToken = TRUE)
+}
 }
 \references{
 https://api.limesurvey.org/classes/remotecontrol_handle.html#method_add_participants

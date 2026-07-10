@@ -7,10 +7,13 @@
 #' @param verbose boolean, Giving out logging info
 #'
 #' @return dataframe
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+#' @examples activate_survey("475835", verbose = TRUE)
 #' @export
-#'
 
-get_questions_properties <- function(iSurveyID, sUsername = NULL, verbose = FALSE) {
+get_questions_properties <- function(iSurveyID,
+                                     sUsername = NULL,
+                                     verbose = FALSE) {
   if (!iSurveyID %in% limer::get_survey_list(sUsername = sUsername)) {
     stop(glue::glue("Survey with ID {iSurveyID} does not exist in this installation!"), call. = F)
   }

@@ -18,3 +18,9 @@ Named character vector with answer codes as names and answer text as values
 \description{
 Extracts answer options for a specific question in a LimeSurvey survey
 }
+\examples{
+\dontrun{
+answers <- get_answer_options(671)
+          answers
+}
+}

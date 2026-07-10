@@ -19,3 +19,9 @@ dataframe
 \description{
 Generates a dataframe with the properties of all questions in a survey
 }
+\examples{
+activate_survey("475835", verbose = TRUE)
+}
+\references{
+\url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+}

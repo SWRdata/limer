@@ -42,6 +42,11 @@ the function application/helpers/common_helper.php must be modified to make the 
 https://bugs.limesurvey.org/view.php?id=18049
 https://raw.githubusercontent.com/LimeSurvey/LimeSurvey/a34c39ecf400599f25806db2e239053bc29af4ac/application/helpers/common_helper.php
 }
+\examples{
+\dontrun{
+export_statistics(475835, filename = "statistics_example.pdf")
+}
+}
 \references{
 https://api.limesurvey.org/classes/remotecontrol_handle.html#method_export_statistics
 }

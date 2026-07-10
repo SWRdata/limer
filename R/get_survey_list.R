@@ -9,6 +9,10 @@
 #'
 #' @return dataframe, survey titles (names), or survey ids (sid)
 #' @export
+#' @examples
+#' \dontrun{
+#' get_survey_list(sid = FALSE)
+#' }
 #' @references https://api.limesurvey.org/classes/remotecontrol_handle.html#method_list_surveys
 get_survey_list <- function(sUsername = NULL, names = FALSE, sid = TRUE) {
   res <- call_limer(
