@@ -41,7 +41,7 @@ get_session_key <- function(
   body.json <- list(
     method = "get_session_key",
     id = 1,
-    params = list(username, password)
+    params = list(username = username, password = password )
   )
 
   r <- httr::POST(
@@ -52,7 +52,7 @@ get_session_key <- function(
     httr::timeout(60)
   )
 
-  response_text <- httr::content(r, as = "text")
+  response_text <- httr::content(r, as = "text", encoding = "utf-8")
   session_key <- jsonlite::fromJSON(response_text)$result
 
   return(session_key)
