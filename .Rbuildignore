@@ -2,3 +2,7 @@
 ^\.Rproj\.user$
 drat.sh
 ^\.travis\.yml$
+CONTRIBUTING.md
+R/.*xls
+R/.*xlsx
+^LICENSE\.md$
