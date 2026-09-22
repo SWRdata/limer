@@ -7,11 +7,16 @@
 #' @param sUsername character, Username in Limesurvey installation
 #'
 #' @return Named character vector with answer codes as names and answer text as values
+#' @examples
+#' \dontrun{
+#' answers <- get_answer_options(671)
+#'           answers
+#' }
 #' @export
 #'
 get_answer_options <- function(iQuestionID, sUsername = NULL) {
   # Get question properties from LimeSurvey
-  question_props <- limer::call_limer(
+  question_props <- call_limer(
     "get_question_properties",
     params = list("iQuestionID" = iQuestionID)
   )
@@ -23,8 +28,8 @@ get_answer_options <- function(iQuestionID, sUsername = NULL) {
 
   # Check if answeroptions exist
   if (is.null(question_props$answeroptions) ||
-      length(question_props$answeroptions) == 0 ||
-      !is.list(question_props$answeroptions)) {
+    length(question_props$answeroptions) == 0 ||
+    !is.list(question_props$answeroptions)) {
     return(character(0))
   }
 

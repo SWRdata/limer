@@ -1,3 +1,47 @@
+#' export_survey_to_pdf
+#'
+#' Renders a survey as a fillable PDF form using LaTeX/tinytex. Pulls the
+#' survey's questions, answer options, welcome/end texts, and relevance
+#' conditions via the API, then builds a LaTeX document with form fields
+#' (radio buttons, checkboxes, text fields) matching each question's type,
+#' and compiles it to PDF.
+#'
+#' @param survey_id integer, ID of the survey to export
+#' @param output_name string, base filename (without extension) for the
+#' generated .tex/.pdf files
+#' @param output_dir string, directory to write the output files to
+#' (created if it doesn't exist)
+#' @param welcome_text string or NULL, welcome text to show at the top of
+#' the PDF. If NULL, pulled from the survey's own welcome text.
+#' @param end_text string or NULL, closing text to show at the end of the
+#' PDF. If NULL, pulled from the survey's own end text.
+#' @param included_questions character vector or NULL, question codes to
+#' include (and their order). If NULL, all top-level questions are
+#' included in their normal group/question order.
+#' @param questions_with_comments character vector or NULL, question codes
+#' that should get an extra free-text "Kommentar" field beneath them
+#' @param groups_on_seperate_pages boolean, if TRUE inserts a page break
+#' whenever the question group changes
+#' @param character_limits named numeric vector, max character length for
+#' free-text fields, keyed by question theme name (e.g.
+#' `c(shortfreetext = 50)`); falls back to `"default"` for themes not
+#' listed
+#' @param custom_conditions named list or NULL, question code -> custom
+#' German-language relevance/condition text to display instead of the
+#' auto-generated one derived from the survey's relevance equation
+#' @param show_group_names boolean, if TRUE prints the question group's
+#' name as a heading whenever a new group starts
+#'
+#' @return invisible NULL; writes a .tex and compiled .pdf file to
+#' `output_dir`
+#' @examples
+#' \dontrun{
+#' export_survey_to_pdf(survey_id = 475835,
+#'                                output_name = "pdf_example",
+#'                                welcome_text = "Willkommen bei der Anfrage.",
+#'                                end_text = "Danke fuer Ihre Teilnahme.")
+#' }
+#' @export
 export_survey_to_pdf <- function(survey_id,
                                  output_name = "exported_survey",
                                  output_dir = "exported_survey",
@@ -12,12 +56,15 @@ export_survey_to_pdf <- function(survey_id,
 
   invisible(lapply(c("limer", "dplyr", "stringr", "tinytex"),
                    library, character.only = TRUE))
-  # Helper function to remove HTML tags and other problematic characters
+
+  # Strips HTML tags, zero-width/invisible unicode characters, curly
+  # quotes, and escapes underscores - used for texts inserted outside a
+  # LaTeX form field context (titles, welcome/end text)
   cleanFun <- function(htmlString) {
     htmlString %>%
       gsub("<.*?>", "", .) %>%
       gsub("\u200B|\u200C|\u200D|\uFEFF", "", .) %>%
-      gsub('["""„"]', "", .) %>%
+      gsub("[\u201C\u201D\u201E\u201F]", "", .) %>%
       gsub("_", "\\\\_", .)
   }
 
@@ -53,6 +100,8 @@ export_survey_to_pdf <- function(survey_id,
     end_text <- cleanFun(survey_texts$surveyls_endtext)
   }
 
+  # Pull all questions (incl. subquestions) and build a cleaned,
+  # whitespace-normalised version of the question text for reuse below
   question_list_full <- call_limer("list_questions",
                                    params = list("iSurveyID" = survey_id))
   question_list_full$question_clean <- question_list_full$question %>%
@@ -61,9 +110,16 @@ export_survey_to_pdf <- function(survey_id,
     stringr::str_remove_all("\u200B|\u200C|\u200D|\uFEFF") %>%
     stringr::str_squish()
 
+  # Only keep top-level questions (parent_qid == 0); subquestions are
+  # attached back onto their parent via the `answers` column below
   question_list <- question_list_full[question_list_full$parent_qid == 0, ]
 
   # Get answer options ----
+  # For each top-level question, its "answers" are either: (a) its own
+  # subquestions (e.g. array/multi-text items), if any exist, or (b) its
+  # predefined answer options fetched via get_answer_options(). Falls back
+  # to NULL if neither applies (e.g. free-text questions) or the API call
+  # errors.
   question_list$answers <- lapply(seq_len(nrow(question_list)), function(i) {
     current_qid <- question_list$qid[i]
     sub_elements <- question_list_full$question_clean[
@@ -78,6 +134,8 @@ export_survey_to_pdf <- function(survey_id,
   })
 
   # Validate included_questions and questions_with_comments ----
+  # Fail fast with a clear message if the caller references question
+  # codes that don't actually exist in this survey
   available_questions <- question_list$title
 
   if (!is.null(included_questions)) {
@@ -106,6 +164,9 @@ export_survey_to_pdf <- function(survey_id,
     }
   }
 
+  # custom_conditions only warns (not stops) since a typo'd/removed
+  # question here just means one condition falls back to auto-generated
+  # text, rather than breaking the whole export
   if (!is.null(custom_conditions)) {
     missing_custom <- setdiff(names(custom_conditions), available_questions)
     if (length(missing_custom) > 0) {
@@ -119,6 +180,8 @@ export_survey_to_pdf <- function(survey_id,
     }
   }
 
+  # Filter/reorder questions to just the requested subset (in the order
+  # given), or keep the survey's natural group/question order otherwise
   if(!is.null(included_questions)){
     question_list <- question_list %>%
       dplyr::filter(title %in% included_questions) %>%
@@ -128,6 +191,9 @@ export_survey_to_pdf <- function(survey_id,
       dplyr::arrange(gid, question_order)
   }
 
+  # Escapes LaTeX special characters for text inserted *inside* form
+  # field labels/content, where cleanFun() alone isn't sufficient (needs
+  # to handle backslashes and LaTeX-reserved symbols safely)
   escape_tex <- function(x) {
     x %>%
       gsub("\u200B|\u200C|\u200D|\uFEFF", "", .) %>%
@@ -140,6 +206,8 @@ export_survey_to_pdf <- function(survey_id,
 
   message("--- Build LaTeX file ---")
   # Latex header ----
+  # AcroForm document setup (hyperref + pifont/needspace for form
+  # fields), SWR brand color, and the survey title/welcome text
   latex_header <- paste0("
   \\documentclass[12pt]{article}
   \\usepackage[a4paper,margin=1in]{geometry}
@@ -173,9 +241,14 @@ export_survey_to_pdf <- function(survey_id,
   ")
 
   # Build questions ----
+  # One LaTeX block per top-level question: group heading (optional),
+  # question text, auto- or custom-generated relevance/condition text,
+  # then the appropriate form field(s) for the question's theme
   question_blocks <- lapply(seq_len(nrow(question_list)), function(i) {
     current_question <- question_list[i, ]
     block <- "\\needspace{5cm}\n"
+    # NOTE: re-fetches all groups on every iteration - inefficient but
+    # left as-is for now, since group count is typically small
     block_info <- call_limer("list_groups",
                              params = list("iSurveyID" = survey_id))
     if(show_group_names && (i == 1 || current_question$gid != question_list$gid[i-1])){
@@ -200,8 +273,12 @@ export_survey_to_pdf <- function(survey_id,
       block <- paste0(block, " ", condition_text, "\\\\[0.5em]\n")
     } else if (!is.null(condition) && condition != "" && condition != "1") {
 
-      # Split condition into individual OR branches on " or " / "||"
-      # and discard any is_empty() branches (internal LimeSurvey NA logic)
+      # Translate LimeSurvey's relevance equation (e.g.
+      # "G01Q03.NAOK == "AO1" or G01Q04.NAOK == "AO2"") into readable
+      # German text. Split into OR branches, drop internal is_empty()
+      # checks, then for each remaining branch extract the referenced
+      # question code + answer code and resolve them back to their
+      # human-readable question number and answer label.
       raw_branches <- stringr::str_split(condition, "\\s+or\\s+|\\|\\|")[[1]]
       raw_branches <- stringr::str_trim(raw_branches)
       answer_branches <- raw_branches[!grepl("is_empty", raw_branches)]
@@ -242,6 +319,10 @@ export_survey_to_pdf <- function(survey_id,
       }
     }
 
+    # Render the actual form field(s), based on question theme. Each
+    # branch below corresponds to one or more LimeSurvey question themes
+    # that need the same kind of AcroForm field (radio group, checkbox
+    # group, single/multi-line text, numeric field).
     if(!is.na(current_question$question_theme_name)){
       if(current_question$question_theme_name %in% c("listradio",
                                                      "bootstrap_buttons",
@@ -249,6 +330,8 @@ export_survey_to_pdf <- function(survey_id,
                                                      "bootstrap_dropdown",
                                                      "list_dropdown",
                                                      "list_with_comment")){
+        # Single-choice: one radio button per answer option, all sharing
+        # the same field name so only one can be selected
         for (j in seq_along(answers)) {
           a_text <- escape_tex(answers[j])
           block <- paste0(
@@ -258,6 +341,7 @@ export_survey_to_pdf <- function(survey_id,
           )
         }
       } else if(current_question$question_theme_name %in% c("5pointchoice")){
+        # Fixed 1-5 rating scale, no predefined answer options to pull
         for (j in seq_along(1:5)) {
           block <- paste0(
             block,
@@ -268,6 +352,8 @@ export_survey_to_pdf <- function(survey_id,
       } else if(current_question$question_theme_name %in% c("hugefreetext",
                                                             "shortfreetext",
                                                             "longfreetext")){
+        # Free text: multiline field, max length from character_limits
+        # (per-theme override, else "default")
         max_chars <- case_when(current_question$question_theme_name %in%
                                  names(character_limits) ~
                                  character_limits[current_question$question_theme_name],
@@ -280,6 +366,7 @@ export_survey_to_pdf <- function(survey_id,
           ", maxlen=", max_chars, "]{}\\\\\n"
         )
       } else if(current_question$question_theme_name %in% c("multipleshorttext")){
+        # One labeled single-line text field per subquestion
         for (j in seq_along(answers)) {
           a_text <- escape_tex(answers[j])
           block <- paste0(
@@ -294,6 +381,7 @@ export_survey_to_pdf <- function(survey_id,
           )
         }
       } else if(current_question$question_theme_name %in% c("numerical")){
+        # Numeric-only field, enforced via a JS keystroke restriction
         block <- paste0(
           block,
           "\\TextField[",
@@ -308,6 +396,7 @@ export_survey_to_pdf <- function(survey_id,
                   "bootstrap_buttons_multi",
                   "multiplechoice",
                   "multiplechoice_with_comments")){
+        # Multi-choice: one independent checkbox per answer option
         for (j in seq_along(answers)) {
           a_text <- escape_tex(answers[j])
           block <- paste0(
@@ -318,7 +407,9 @@ export_survey_to_pdf <- function(survey_id,
           )
         }
       }
+      # any other theme not listed above gets no form field at all
     } else {
+      # No theme info available - fall back to a generic free-text field
       block <- paste0(
         block,
         "\\TextField[name=q", i,
@@ -327,6 +418,7 @@ export_survey_to_pdf <- function(survey_id,
       )
     }
 
+    # Optional extra comment field beneath the question
     if(!is.null(questions_with_comments) &&
        current_question$title %in% questions_with_comments){
       block <- paste0(
@@ -337,6 +429,7 @@ export_survey_to_pdf <- function(survey_id,
       )
     }
 
+    # Page break when the next question belongs to a different group
     if(groups_on_seperate_pages && i != nrow(question_list) &&
        current_question$gid != question_list$gid[i+1]){
       block <- paste0(block, "\\newpage")

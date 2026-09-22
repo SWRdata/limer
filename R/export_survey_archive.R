@@ -1,37 +1,63 @@
-#' Export LSA File from a LimeSurvey survey
+#' export_survey_archive
 #'
-#' This function exports a survey archive (LSA).
+#' Exports a survey archive (.lsa file) for a survey, including its
+#' structure, responses, and settings. Uses the LimeSurvey admin web UI's
+#' built-in export feature (Tools > Export > Umfragearchiv) rather than
+#' the RemoteControl API, since the RPC method for this requires an
+#' unofficial server-side patch that most installations won't have.
 #'
-#' @param iSurveyID \dots
-#' @param filename \dots
+#' @param iSurveyID integer, ID of the survey to export
+#' @param filename string or NULL, path to save the .lsa file to. If NULL
+#' (default), saves as \verb{limesurvey_survey_{iSurveyID}.lsa} in the current
+#' working directory.
 #' @param verbose boolean, Giving out logging info
-#' @export
-#' @examples \dontrun{
-#' export_survey_archive(12345)
-#' }
-#' @note This function requires that the patch has been implemented in the
-#' remotecontrol_handle.php file of your Limesurvey installation.
-#' application/helpers/remotecontrol/remotecontrol_handle.php
-#' system.file("patch.php", package="limer")
-#' See @references
 #'
-#' @references https://bugs.limesurvey.org/view.php?id=17747
+#' @return invisible path to the saved .lsa file
+#' @export
+#' @examples
+#' \dontrun{
+#' export_survey_archive(475835,
+#'                                 filename = "archive_example.lsa",
+#'                                 verbose = TRUE)
+#' }
 
-export_survey_archive <-
-  function(iSurveyID,
-           filename = NULL,
-           verbose = FALSE) {
-    x <- call_limer("export_survey_archive",
-                    params = list("iSurveyID_org" = iSurveyID))
+export_survey_archive <- function(iSurveyID, filename = NULL, verbose = FALSE) {
+  base_url <- sub("/index.php/admin/remotecontrol", "", getOption("lime_api"))
 
-    survey_data_raw <- rawToChar(base64enc::base64decode(x))
+  s <- httr::handle(base_url)
+  p <- httr::content(
+    httr::GET(handle = s, url = paste0(base_url, "/index.php/admin/authentication/sa/login")),
+    as = "text", encoding = "utf-8"
+  )
 
-    if (is.null(filename))
-      filename <- glue::glue("limesurvey_survey_{iSurveyID}.lsa")
+  httr::POST(
+    handle = s,
+    url = paste0(base_url, "/index.php/admin/authentication/sa/login"),
+    body = list(
+      YII_CSRF_TOKEN = regmatches(p, regexpr('(?<="csrfToken":")[^"]+', p, perl = TRUE)),
+      authMethod = "Authdb", user = getOption("lime_username"),
+      password = getOption("lime_password"), action = "login",
+      width = "1920", login_submit = "login", loginlang = "default"
+    ),
+    encode = "form"
+  )
 
+  if (is.null(filename))
+    filename <- glue::glue("limesurvey_survey_{iSurveyID}.lsa")
 
-    writeLines(survey_data_raw, filename)
-    if (verbose)
-      message(filename, " saved!")
+  resp <- httr::GET(
+    handle = s,
+    url = paste0(base_url, "/index.php/admin/export/sa/survey/action/exportarchive/surveyid/", iSurveyID),
+    httr::write_disk(filename, overwrite = TRUE)
+  )
 
+  if (httr::status_code(resp) != 200) {
+    unlink(filename)
+    stop("Failed to export survey ", iSurveyID, " (HTTP ", httr::status_code(resp), ")", call. = FALSE)
   }
+
+  if (verbose)
+    message(filename, " saved!")
+
+  invisible(filename)
+}

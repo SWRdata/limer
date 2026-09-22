@@ -5,4 +5,6 @@ drat.sh
 CONTRIBUTING.md
 R/.*xls
 R/.*xlsx
+^\.positai$
+^\.claude$
 ^LICENSE\.md$

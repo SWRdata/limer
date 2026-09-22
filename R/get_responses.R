@@ -10,11 +10,12 @@
 #' @param sHeadingType string (optional) 'code','full' or 'abbreviated'.
 #' defaults to 'code'.
 #' @param sResponseType (optional)'short' or 'long'. defaults to 'short'
-#' @param \dots Further arguments to \code{\link{call_limer}}.
+#' @param \dots Further arguments passed to internal function \code{call_limer()}.
 #' @export
 #' @examples \dontrun{
-#' get_responses(12345)
+#' get_responses(475835)
 #' }
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
 
 get_responses <- function(iSurveyID, sDocumentType = "csv", sLanguageCode = NULL,
                           sCompletionStatus = "complete", sHeadingType = "code",
@@ -22,7 +23,7 @@ get_responses <- function(iSurveyID, sDocumentType = "csv", sLanguageCode = NULL
   # Put all the function's arguments in a list to then be passed to call_limer()
   params <- as.list(environment())
   dots <- list(...)
-  if (length(dots) > 0) params <- append(params,dots)
+  if (length(dots) > 0) params <- append(params, dots)
   # print(params) # uncomment to debug the params
 
   results <- call_limer(method = "export_responses", params = params)

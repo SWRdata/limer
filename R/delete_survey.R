@@ -1,16 +1,19 @@
-
-
 #' delete_survey
 #'
 #' Deletes a survey and all its data
 #'
 #' @param iSurveyID integer, Id of the survey to be deleted
 #' @param verbose boolean, Giving out logging info
-#' @export
 #'
 #' @references https://api.limesurvey.org/classes/Survey.html#method_deleteSurvey
+#' @examples
+#' \dontrun{
+#' new_id <- copy_survey_to(iSurveyID = 475835, exclude_qids = c("G01Q03", "G01Q04"))
+#' delete_survey(new_id)
+#' }
+#' @export
 
-delete_survey <- function(iSurveyID, verbose) {
+delete_survey <- function(iSurveyID, verbose = FALSE) {
   iSurveyID <- as.numeric(iSurveyID) %>% suppressWarnings()
   if (is.na(iSurveyID))
     stop("No valid iSurveyID passed. iSurveyID must be a six-digit number!",
@@ -34,6 +37,4 @@ delete_survey <- function(iSurveyID, verbose) {
     if (verbose)
       message(msg)
   }
-
-
 }

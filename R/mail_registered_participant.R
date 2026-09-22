@@ -5,6 +5,7 @@
 #' @param iSurveyID \dots
 #' @param tid \dots
 #' @export
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
 #' @examples \dontrun{
 #' mail_registred_participant(iSurveyID = 123456, tid = 2)
 #' }
