@@ -19,6 +19,7 @@ export(edit_question_text)
 export(exists_participants_table)
 export(export_statistics)
 export(export_survey_archive)
+export(export_survey_quexml)
 export(export_survey_structure)
 export(export_survey_to_pdf)
 export(get_answer_options)
@@ -37,10 +38,12 @@ export(release_session_key)
 export(reset_survey)
 export(set_participant_properties)
 import(httr)
-importFrom(httr,GET)
-importFrom(httr,add_headers)
-importFrom(httr,content)
-importFrom(httr,stop_for_status)
+importFrom(httr,
+  GET,
+  add_headers,
+  content,
+  stop_for_status
+)
 importFrom(jsonlite,fromJSON)
 importFrom(magrittr,"%>%")
 importFrom(rlang,.data)

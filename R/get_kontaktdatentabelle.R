@@ -39,12 +39,11 @@ get_kontaktdatentabelle <- function(table_name = "Zentrale_datenbank",
   df <- data$records
   names(df) <- gsub("^fields\\.", "", names(df))
   # rename name column because limesurvey expects firstname
-  if("name" %in% colnames(df)){
-    df |> dplyr::rename(firstname = name)
-  }else if("gemeinde" %in% colnames(df)){
-    df |> dplyr::rename(firstname = gemeinde)
+  if ("name" %in% colnames(df)) {
+    df <- dplyr::rename(df, firstname = "name")
+  } else if ("gemeinde" %in% colnames(df)) {
+    df <- dplyr::rename(df, firstname = "gemeinde")
   }
-
 
   return(df)
 }

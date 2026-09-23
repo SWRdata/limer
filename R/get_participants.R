@@ -14,6 +14,7 @@
 #' @param ... ellipsis parameters passed on to call_limer
 #'
 #' @return dataframe of participant data
+#' @importFrom rlang .data
 #' @export
 #' @references https://api.limesurvey.org/classes/remotecontrol_handle.html#method_list_participants
 #' @examples
@@ -48,8 +49,6 @@ get_participants <- function(iSurveyID,
         stop(df$status, call. = FALSE)
 
       dfs <- lapply(df, data.frame, stringsAsFactors = FALSE)
-      aTokenIDs <- limer::get_participants(iSurveyID, iStart = 1, iLimit = max_id, tid = TRUE, bUnused = FALSE) %>%
-        suppressWarnings()
       data <- dplyr::bind_rows(dfs)
       if (nrow(data) > 0 && data[1,1] == "No survey participants found.")
         stop("No survey participants found.", call. = F)
@@ -66,7 +65,7 @@ get_participants <- function(iSurveyID,
       stop(data$status, call. = FALSE)
   }
   if (!tid)
-    data <- data %>% dplyr::select(-tid)
+    data <- data %>% dplyr::select(-.data$tid)
   colnames(data) <- gsub("participant_info.","",colnames(data))
   cat("\r")
   utils::flush.console()

@@ -8,7 +8,10 @@
 #'
 #' @return dataframe
 #' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
-#' @examples activate_survey("475835", verbose = TRUE)
+#' @examples
+#' \dontrun{
+#' get_questions_properties(475835, verbose = TRUE)
+#' }
 #' @export
 
 get_questions_properties <- function(iSurveyID,

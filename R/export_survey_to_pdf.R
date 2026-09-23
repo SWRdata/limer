@@ -34,6 +34,7 @@
 #'
 #' @return invisible NULL; writes a .tex and compiled .pdf file to
 #' `output_dir`
+#' @importFrom rlang .data
 #' @examples
 #' \dontrun{
 #' export_survey_to_pdf(survey_id = 475835,
@@ -62,10 +63,10 @@ export_survey_to_pdf <- function(survey_id,
   # LaTeX form field context (titles, welcome/end text)
   cleanFun <- function(htmlString) {
     htmlString %>%
-      gsub("<.*?>", "", .) %>%
-      gsub("\u200B|\u200C|\u200D|\uFEFF", "", .) %>%
-      gsub("[\u201C\u201D\u201E\u201F]", "", .) %>%
-      gsub("_", "\\\\_", .)
+      stringr::str_remove_all("<.*?>") %>%
+      stringr::str_remove_all("\u200B|\u200C|\u200D|\uFEFF") %>%
+      stringr::str_remove_all("[\u201C\u201D\u201E\u201F]") %>%
+      stringr::str_replace_all("_", "\\\\_")
   }
 
   if (!dir.exists(output_dir)) {
@@ -184,11 +185,11 @@ export_survey_to_pdf <- function(survey_id,
   # given), or keep the survey's natural group/question order otherwise
   if(!is.null(included_questions)){
     question_list <- question_list %>%
-      dplyr::filter(title %in% included_questions) %>%
-      dplyr::arrange(factor(title, levels = included_questions))
+      dplyr::filter(.data$title %in% included_questions) %>%
+      dplyr::arrange(factor(.data$title, levels = included_questions))
   } else {
     question_list <- question_list %>%
-      dplyr::arrange(gid, question_order)
+      dplyr::arrange(.data$gid, .data$question_order)
   }
 
   # Escapes LaTeX special characters for text inserted *inside* form
@@ -196,7 +197,7 @@ export_survey_to_pdf <- function(survey_id,
   # to handle backslashes and LaTeX-reserved symbols safely)
   escape_tex <- function(x) {
     x %>%
-      gsub("\u200B|\u200C|\u200D|\uFEFF", "", .) %>%
+      stringr::str_remove_all("\u200B|\u200C|\u200D|\uFEFF") %>%
       stringr::str_replace_all("\\\\", "\\\\textbackslash ") %>%
       stringr::str_replace_all("([#$%&_{}])", "\\\\\\1") %>%
       stringr::str_replace_all("\\^", "\\\\textasciicircum ") %>%
@@ -254,8 +255,8 @@ export_survey_to_pdf <- function(survey_id,
     if(show_group_names && (i == 1 || current_question$gid != question_list$gid[i-1])){
       block <- paste0(block, "\\large \\textcolor{swr_purple}{",
                       block_info %>%
-                        dplyr::filter(gid == current_question$gid) %>%
-                        dplyr::pull(group_name),
+                        dplyr::filter(.data$gid == current_question$gid) %>%
+                        dplyr::pull(.data$group_name),
                       "}\\normalsize\\newline\\\\[0.5em]\n")
     }
 
@@ -290,13 +291,13 @@ export_survey_to_pdf <- function(survey_id,
           acode <- stringr::str_extract(branch, '(?<=")[^"]+(?=")')
           if (is.na(qcode) || is.na(acode)) return(NULL)
           q_text_raw <- question_list %>%
-            dplyr::filter(title == qcode) %>%
-            dplyr::pull(question_clean)
+            dplyr::filter(.data$title == qcode) %>%
+            dplyr::pull(.data$question_clean)
           if (length(q_text_raw) == 0) return(NULL)
           q_numeral <- stringr::str_extract(q_text_raw, "[^ ]+")
           cond_answers <- question_list %>%
-            dplyr::filter(title == qcode) %>%
-            dplyr::pull(answers) %>% unlist()
+            dplyr::filter(.data$title == qcode) %>%
+            dplyr::pull(.data$answers) %>% unlist()
           a_text <- cond_answers[acode]
           if (is.null(a_text) || is.na(a_text)) return(NULL)
           paste0("Frage ", q_numeral, " mit \u201e", a_text, "\u201c beantwortet wurde")
@@ -354,10 +355,11 @@ export_survey_to_pdf <- function(survey_id,
                                                             "longfreetext")){
         # Free text: multiline field, max length from character_limits
         # (per-theme override, else "default")
-        max_chars <- case_when(current_question$question_theme_name %in%
-                                 names(character_limits) ~
-                                 character_limits[current_question$question_theme_name],
-                               TRUE ~ character_limits["default"])
+        max_chars <- dplyr::case_when(
+          current_question$question_theme_name %in% names(character_limits) ~
+            character_limits[current_question$question_theme_name],
+          TRUE ~ character_limits["default"]
+        )
         block <- paste0(
           block,
           "\\TextField[name=", "q_", current_question$title,

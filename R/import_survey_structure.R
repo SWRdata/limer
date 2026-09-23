@@ -58,7 +58,7 @@ import_survey_structure <-
         xml2::xml_find_all(xpath = "/document/groups/rows/row/sid") %>%
         xml2::xml_text() %>%
         unique() %>%
-        .[1]
+        dplyr::first()
     }
 
     if (is.null(sNewSurveyName) & grepl("lss$", sImportData)) {

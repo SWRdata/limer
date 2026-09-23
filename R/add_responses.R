@@ -7,7 +7,7 @@
 #' @param data dataframe, The actual response(s). Column names should be the
 #' short question codes (e.g. "G01Q03") as shown in survey exports; these
 #' are automatically translated to LimeSurvey's internal field names
-#' (format \\verb{{iSurveyID}X{gid}X{qid}}) before submission."
+#' (format \code{\{iSurveyID\}X\{gid\}X\{qid\}}) before submission.
 #' @importFrom rlang .data
 #'
 #' @examples
