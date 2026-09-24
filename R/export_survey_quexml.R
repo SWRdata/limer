@@ -28,14 +28,14 @@ export_survey_quexml <- function(iSurveyID,
                                  language = NULL,
                                  settings = NULL,
                                  verbose = FALSE) {
-  x <- call_limer(
-    "export_survey_quexml",
-    params = list(
-      as.integer(iSurveyID),
-      language,
-      settings
-    )
-  )
+  # Only send optional args when set; omitted params stay PHP defaults.
+  # (Sending R NULL as JSON {} previously caused HTTP 500 on the server.)
+  params <- list(as.integer(iSurveyID))
+  if (!is.null(language) || !is.null(settings)) {
+    params <- c(params, list(language, settings))
+  }
+
+  x <- call_limer("export_survey_quexml", params = params)
 
   if (is.list(x) && !is.null(x$status)) {
     err <- if (!is.null(x$error)) x$error else x$status
