@@ -40,26 +40,61 @@ call_limer <- function(method, params = list(), ssl_verifypeer = FALSE, ...) {
   r <- httr::POST(
     getOption("lime_api"),
     httr::content_type_json(),
-    body = jsonlite::toJSON(body.json, auto_unbox = TRUE, force = TRUE),
+    # null = "null": R NULL must become JSON null, not {} (force alone
+    # turns NULL into empty objects, which break optional PHP params)
+    body = jsonlite::toJSON(
+      body.json,
+      auto_unbox = TRUE,
+      force = TRUE,
+      null = "null"
+    ),
     httr::config(ssl_verifypeer = ssl_verifypeer),
     ...
   )
 
+  status <- httr::status_code(r)
+  body_text <- httr::content(r, as = "text", encoding = "utf-8")
+
+  # Non-JSON HTML error pages (PHP fatals, auth redirects, 500s, …)
+  # would otherwise surface as cryptic jsonlite "lexical error" messages
+  if (httr::http_error(r)) {
+    preview <- stringr::str_trunc(
+      stringr::str_squish(body_text),
+      width = 300
+    )
+    stop(
+      glue::glue(
+        "LimeSurvey API HTTP {status} for method '{method}': {preview}"
+      ),
+      call. = FALSE
+    )
+  }
+
   # simplifyVector = TRUE coerces JSON arrays/objects into R vectors,
   # lists, or data frames where possible, so most API responses come
   # back ready to use without further parsing
-  response <- jsonlite::parse_json(
-    httr::content(r, as = "text", encoding = "utf-8"),
-    simplifyVector = TRUE
-  )$result
+  response <- tryCatch(
+    jsonlite::parse_json(body_text, simplifyVector = TRUE)$result,
+    error = function(e) {
+      preview <- stringr::str_trunc(
+        stringr::str_squish(body_text),
+        width = 300
+      )
+      stop(
+        glue::glue(
+          "LimeSurvey API returned non-JSON for method '{method}' ",
+          "(HTTP {status}): {preview}"
+        ),
+        call. = FALSE
+      )
+    }
+  )
 
   if (is.null(response)) {
     # A NULL `result` means the API returned an error object instead of
     # a result - re-parse the raw response (without simplifyVector) to
     # pull out the actual error message
-    err_msg <- jsonlite::parse_json(
-      httr::content(r, as = "text", encoding = "utf-8")
-    )$error
+    err_msg <- jsonlite::parse_json(body_text)$error
 
     # If LimeSurvey didn't even recognise the method name, $error itself
     # may also come back NULL - fall back to a generic explanatory message
