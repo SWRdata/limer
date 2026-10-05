@@ -1,8 +1,8 @@
 #' copy_survey_to
 #'
 #' Creates a copy of an existing survey, optionally overwriting a specific
-#' destination survey ID, preserving its title, and pruning specific
-#' questions and any resulting empty question groups from the copy
+#' destination survey ID, setting or preserving a survey title, and pruning
+#' specific questions and any resulting empty question groups from the copy
 #' afterwards. This works around the RemoteControl API by combining RPC
 #' calls (for lookups, deletions, and cleanup) with scraping and reusing an
 #' admin web session for the actual copy action, since survey duplication
@@ -12,10 +12,13 @@
 #' @param DestSurveyID integer or NULL, ID of an existing survey to
 #' overwrite with the copy. If NULL (default), a new survey is created
 #' with a fresh auto-assigned ID instead of overwriting anything.
-#' @param keep_title boolean, if TRUE and `DestSurveyID` refers to an
-#' existing survey, the destination survey's original title is reused for
-#' the copy instead of a generated one. Ignored if `DestSurveyID` is NULL
-#' or does not currently exist.
+#' @param keep_title boolean, controls which existing title is reused when
+#' `new_title` is NULL. If TRUE and `DestSurveyID` is set, the title of the
+#' existing destination survey is kept. If TRUE and `DestSurveyID` is NULL,
+#' the title of the source survey (copy template) is used. Ignored when
+#' `new_title` is set.
+#' @param new_title character or NULL, optional explicit title for the copy.
+#' When set, this overrides `keep_title`.
 #' @param exclude_qids character vector or NULL, question codes
 #' (e.g. "G01Q03") to delete from the copy after it is created. Matching is
 #' done by question title, not question ID, since IDs are reassigned when
@@ -31,7 +34,9 @@
 #' }
 #' @export
 
-copy_survey_to <- function(iSurveyID, DestSurveyID = NULL, keep_title = TRUE, exclude_qids = NULL) {
+copy_survey_to <- function(iSurveyID, DestSurveyID = NULL,
+                           keep_title = TRUE, new_title = NULL,
+                           exclude_qids = NULL) {
 
   # lime_api option points at the RPC endpoint (.../admin/remotecontrol),
   # but the admin web UI (needed for the copy action itself) lives one
@@ -42,14 +47,34 @@ copy_survey_to <- function(iSurveyID, DestSurveyID = NULL, keep_title = TRUE, ex
   existing_before <- call_limer("list_surveys", params = list(NULL))
   ids_before <- as.character(existing_before$sid)
 
-  original_title <- NULL
-  if (!is.null(DestSurveyID)) {
-    dest_row <- existing_before[as.character(existing_before$sid) == as.character(DestSurveyID), ]
-    if (nrow(dest_row) > 0) {
-      if (keep_title) {
-        original_title <- dest_row$surveyls_title
-        message("Preserving title: '", original_title, "'")
+  # Title priority: new_title > keep_title (dest or source) > ID fallback
+  copy_title <- NULL
+  if (!is.null(new_title)) {
+    copy_title <- as.character(new_title)
+    message("Using new title: '", copy_title, "'")
+  } else if (isTRUE(keep_title)) {
+    if (!is.null(DestSurveyID)) {
+      dest_row <- existing_before[
+        as.character(existing_before$sid) == as.character(DestSurveyID),
+      ]
+      if (nrow(dest_row) > 0) {
+        copy_title <- dest_row$surveyls_title[[1]]
+        message("Preserving destination title: '", copy_title, "'")
       }
+    } else {
+      source_row <- existing_before[
+        as.character(existing_before$sid) == as.character(iSurveyID),
+      ]
+      if (nrow(source_row) > 0) {
+        copy_title <- source_row$surveyls_title[[1]]
+        message("Using source title: '", copy_title, "'")
+      }
+    }
+  }
+
+  if (!is.null(DestSurveyID)) {
+    dest_exists <- as.character(DestSurveyID) %in% ids_before
+    if (dest_exists) {
       # If DestSurveyID already exists, it needs to be deleted
       message("Deleting existing survey ", DestSurveyID, "...")
       call_limer("delete_survey", params = list(as.integer(DestSurveyID)))
@@ -89,9 +114,15 @@ copy_survey_to <- function(iSurveyID, DestSurveyID = NULL, keep_title = TRUE, ex
   message("Copying survey ", iSurveyID, " to ", ifelse(is.null(DestSurveyID), "new survey", DestSurveyID), "...")
   body <- list(
     YII_CSRF_TOKEN = csrf2, copysurveylist = as.character(iSurveyID),
-    # Title priority: preserved original title (if kept) > destination ID
-    # as a fallback name > source survey ID as a last resort
-    copysurveyname = if (!is.null(original_title)) original_title else if (!is.null(DestSurveyID)) as.character(DestSurveyID) else as.character(iSurveyID),
+    # Title priority: new_title > keep_title (dest/source) > destination
+    # ID as a fallback name > source survey ID as a last resort
+    copysurveyname = if (!is.null(copy_title)) {
+      copy_title
+    } else if (!is.null(DestSurveyID)) {
+      as.character(DestSurveyID)
+    } else {
+      as.character(iSurveyID)
+    },
     sid = "0", copysurveytranslinksfields = "1", copysurveyexcludequotas = "0",
     copysurveyexcludepermissions = "0", copysurveyexcludeanswers = "0",
     copysurveyresetconditions = "0", copysurveyresetstartenddate = "0",

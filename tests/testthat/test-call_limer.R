@@ -6,10 +6,6 @@ test_that("call_limer errors if params is not a list", {
 })
 
 test_that("call_limer returns the parsed result on success", {
-  fake_response <- list(
-    status_code = function() 200
-  )
-
   local_mocked_bindings(
     get_session_key = function(...) "fake_session_key",
     .package = "limer"
@@ -17,7 +13,7 @@ test_that("call_limer returns the parsed result on success", {
 
   local_mocked_bindings(
     POST = function(...) {
-      structure(list(), class = "response")
+      structure(list(status_code = 200L), class = "response")
     },
     content = function(...) {
       '{"id":" ","result":{"sid":475835,"active":"Y"},"error":null}'
@@ -39,7 +35,9 @@ test_that("call_limer errors with API error message when present", {
   )
 
   local_mocked_bindings(
-    POST = function(...) structure(list(), class = "response"),
+    POST = function(...) {
+      structure(list(status_code = 200L), class = "response")
+    },
     content = function(...) {
       '{"id":" ","result":null,"error":"Invalid session key"}'
     },
@@ -59,7 +57,9 @@ test_that("call_limer falls back to generic message when error is also null", {
   )
 
   local_mocked_bindings(
-    POST = function(...) structure(list(), class = "response"),
+    POST = function(...) {
+      structure(list(status_code = 200L), class = "response")
+    },
     content = function(...) {
       '{"id":" ","result":null,"error":null}'
     },
