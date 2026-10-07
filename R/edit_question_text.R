@@ -11,7 +11,7 @@
 #' (default "de")
 #'
 #' @return invisible result of the underlying set_question_properties call
-#' @references https://api.limesurvey.org/classes/remotecontrol_handle.html#method_set_question_properties
+#' @references https://api.limesurvey.org/classes/remotecontrol-handle.html#method_set_question_properties
 #' @examples
 #' \dontrun{
 #' edit_question_text(survey_id = 475835,

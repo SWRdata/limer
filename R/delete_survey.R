@@ -5,7 +5,7 @@
 #' @param iSurveyID integer, Id of the survey to be deleted
 #' @param verbose boolean, Giving out logging info
 #'
-#' @references https://api.limesurvey.org/classes/Survey.html#method_deleteSurvey
+#' @references https://api.limesurvey.org/classes/remotecontrol-handle.html#method_delete_survey
 #' @examples
 #' \dontrun{
 #' new_id <- copy_survey_to(iSurveyID = 475835, exclude_qids = c("G01Q03", "G01Q04"))

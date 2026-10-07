@@ -8,7 +8,7 @@
 #' @param aTokenData list, key-value-pair of attribute name an value
 #' @param verbose boolean, Giving out logging info
 #' @return none
-#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol-handle.html#method_set_participant_properties}
 #' @examples
 #' \dontrun{
 #' set_participant_properties(iSurveyID = 475835,

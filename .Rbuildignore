@@ -8,3 +8,8 @@ R/.*xlsx
 ^\.positai$
 ^\.claude$
 ^LICENSE\.md$
+^p148_kitagebuehren\.code-workspace$
+^\.\.Rcheck$
+^limer\.Rcheck$
+^limer_.*\.tar\.gz$
+^\.Rhistory$

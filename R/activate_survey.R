@@ -5,7 +5,7 @@
 #' @param iSurveyID integer, Id of the survey to be activated
 #' @param verbose boolean, Giving out logging info
 #'
-#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol-handle.html#method_activate_survey}
 #' @examples
 #' \dontrun{
 #' activate_survey("475835", verbose = TRUE)

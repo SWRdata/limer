@@ -3,7 +3,7 @@
 #' This function clears the LimeSurvey API session key currently in use, effectively logging out.
 #'
 #' @export
-#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol-handle.html#method_release_session_key}
 #' @examples \dontrun{
 #' release_session_key()
 #' }

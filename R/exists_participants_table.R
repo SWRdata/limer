@@ -5,7 +5,7 @@
 #' @param iSurveyID integer, ID of the Survey
 #'
 #' @return boolean
-#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol-handle.html#method_list_participants}
 #' @examples
 #' \dontrun{
 #' exists_participants_table(475835)

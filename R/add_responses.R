@@ -17,7 +17,7 @@
 #'                                     stringsAsFactors = FALSE)
 #' add_responses(iSurveyID = 475835, data = responses_df, verbose = TRUE)
 #' }
-#' @references https://api.limesurvey.org/classes/remotecontrol_handle.html#method_add_response
+#' @references https://api.limesurvey.org/classes/remotecontrol-handle.html#method_add_response
 #' @export
 add_responses <- function(iSurveyID, data, verbose = FALSE) {
   if (!inherits(data, "data.frame"))

@@ -6,3 +6,5 @@
 *.csv
 .positai
 man/
+p148_kitagebuehren.code-workspace
+.Rbuildignore

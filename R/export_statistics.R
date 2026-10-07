@@ -18,7 +18,7 @@
 #' }
 #' @export
 #'
-#' @references https://api.limesurvey.org/classes/remotecontrol_handle.html#method_export_statistics
+#' @references https://api.limesurvey.org/classes/remotecontrol-handle.html#method_export_statistics
 #' @note the function application/helpers/common_helper.php must be modified to make the PDF export work.
 #' https://bugs.limesurvey.org/view.php?id=18049
 #' https://raw.githubusercontent.com/LimeSurvey/LimeSurvey/a34c39ecf400599f25806db2e239053bc29af4ac/application/helpers/common_helper.php

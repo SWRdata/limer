@@ -26,7 +26,7 @@
 #'  DestSurveyID = 475836,
 #'  verbose = TRUE)
 #' }
-#' @references https://api.limesurvey.org/classes/remotecontrol_handle.html#method_import_survey
+#' @references https://api.limesurvey.org/classes/remotecontrol-handle.html#method_import_survey
 import_survey_structure <-
   function(sImportData,
            sNewSurveyName = NULL,

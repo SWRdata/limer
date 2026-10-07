@@ -14,7 +14,7 @@
 #' @examples \dontrun{
 #' get_session_key()
 #' }
-#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_get_session_key}
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol-handle.html#method_get_session_key}
 
 get_session_key <- function(
   username = getOption("lime_username"),

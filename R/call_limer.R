@@ -21,7 +21,7 @@
 #'
 #' @return The parsed \code{result} field of the JSON response.
 #'
-#' @references https://api.limesurvey.org/classes/remotecontrol_handle.html
+#' @references https://api.limesurvey.org/classes/remotecontrol-handle.html
 #' @export
 call_limer <- function(method, params = list(), ssl_verifypeer = FALSE, ...) {
   if (!is.list(params)) stop("params must be a list.")

@@ -2,11 +2,14 @@ Package: limer
 Type: Package
 Title: A LimeSurvey R Client
 Version: 0.2
-Date: 2022-11-25
+Date: 2026-10-07
 Encoding: UTF-8
-Author: Andrew Heiss
-Contributor: Ulrich Lang
-Maintainer: Andrew Heiss <andrew@andrewheiss.com>
+Authors@R: c(
+    person("Andrew", "Heiss",
+           role = c("aut", "cre"),
+           email = "andrew@andrewheiss.com"),
+    person("Ulrich", "Lang", role = "ctb")
+    )
 Description: Provides access to LimeSurvey's RemoteControl 2 API, allowing you 
   to collect and analyze survey data in a simple, reproducible workflow.  
 Imports:
@@ -24,7 +27,6 @@ Imports:
     utils,
     xml2
 License: MIT + file LICENSE
-LazyData: TRUE
 URL: https://github.com/cloudyr/limer
 BugReports: https://github.com/cloudyr/limer/issues
 Suggests: 

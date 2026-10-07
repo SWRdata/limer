@@ -8,7 +8,7 @@
 #' all.
 #'
 #' @return -
-#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol-handle.html#method_delete_response}
 #' @examples
 #' \dontrun{
 #' delete_responses(475835)

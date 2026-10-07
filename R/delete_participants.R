@@ -10,7 +10,7 @@
 #' @param ask boolean, if TRUE (default) asks for interactive confirmation
 #' before deleting. Set to FALSE for non-interactive/scripted use.
 #'
-#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_delete_participants}
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol-handle.html#method_delete_participants}
 #' @examples
 #' \dontrun{
 #' delete_participants(475835)

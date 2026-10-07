@@ -7,7 +7,7 @@
 #' @param verbose boolean, Giving out logging info
 #'
 #' @return dataframe
-#' @references \url{https://api.limesurvey.org/classes/remotecontrol_handle.html#method_activate_survey}
+#' @references \url{https://api.limesurvey.org/classes/remotecontrol-handle.html#method_list_questions}
 #' @examples
 #' \dontrun{
 #' get_questions_properties(475835, verbose = TRUE)
