@@ -16,7 +16,11 @@ mail_eligibility_attribute_fields <- function() {
 #' @noRd
 fetch_participant_mail_state <- function(iSurveyID, tid) {
   tid <- as.integer(tid)
-  i_limit <- max(c(tid, 10000L), na.rm = TRUE)
+  # list_participants is offset/limit, not filtered by tid — request
+  # far enough to include the highest tid, with a small cushion for
+  # gaps from deleted tokens. Avoid a large fixed floor (e.g. 10000)
+  # that forces chunking on small surveys.
+  i_limit <- max(max(tid, na.rm = TRUE) + 100L, 1000L)
 
   participants <- tryCatch(
     get_participants(

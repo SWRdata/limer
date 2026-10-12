@@ -191,10 +191,13 @@ test_that("get_participants remaps limit/start aliases to iLimit/iStart", {
 })
 
 test_that("get_participants chunk path accepts data.frame from call_limer", {
+  calls <- list()
   testthat::local_mocked_bindings(
     call_limer = function(method, params = list(), ...) {
+      calls <<- c(calls, list(params))
+      start <- as.integer(params$iStart)
       data.frame(
-        tid = c(1L, 2L),
+        tid = c(start, start + 1L),
         token = c("abc", "def"),
         email = c("a@b.de", "c@d.de"),
         stringsAsFactors = FALSE
@@ -205,13 +208,99 @@ test_that("get_participants chunk path accepts data.frame from call_limer", {
 
   result <- get_participants(
     123,
-    iLimit = 10000,
+    iStart = 1,
+    iLimit = 4,
     tid = TRUE,
-    bUnused = FALSE
+    bUnused = FALSE,
+    chunksize = 2
   )
 
   expect_equal(nrow(result), 4L)
+  expect_equal(result$tid, c(1L, 2L, 3L, 4L))
+  expect_equal(length(calls), 2L)
+  expect_equal(calls[[1]]$iStart, 1)
+  expect_equal(calls[[2]]$iStart, 3)
   expect_true(all(c("tid", "token", "email") %in% colnames(result)))
+})
+
+test_that("get_participants chunk path treats empty later chunk as end of list", {
+  calls <- 0L
+  testthat::local_mocked_bindings(
+    call_limer = function(method, params = list(), ...) {
+      calls <<- calls + 1L
+      if (calls == 1L) {
+        return(data.frame(
+          tid = c(1L, 2L),
+          token = c("abc", "def"),
+          email = c("a@b.de", "c@d.de"),
+          stringsAsFactors = FALSE
+        ))
+      }
+      list(status = "No survey participants found.")
+    },
+    .package = "limer"
+  )
+
+  result <- get_participants(
+    123,
+    iStart = 1,
+    iLimit = 10000,
+    tid = TRUE,
+    bUnused = FALSE,
+    chunksize = 2
+  )
+
+  expect_equal(nrow(result), 2L)
+  expect_equal(result$tid, c(1L, 2L))
+  expect_equal(calls, 2L)
+})
+
+test_that("get_participants chunk path stops after a short page", {
+  calls <- 0L
+  testthat::local_mocked_bindings(
+    call_limer = function(method, params = list(), ...) {
+      calls <<- calls + 1L
+      data.frame(
+        tid = 1L,
+        token = "abc",
+        email = "a@b.de",
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "limer"
+  )
+
+  result <- get_participants(
+    123,
+    iStart = 1,
+    iLimit = 10000,
+    tid = TRUE,
+    bUnused = FALSE,
+    chunksize = 5000
+  )
+
+  expect_equal(nrow(result), 1L)
+  expect_equal(calls, 1L)
+})
+
+test_that("get_participants still errors when first chunk has no participants", {
+  testthat::local_mocked_bindings(
+    call_limer = function(method, params = list(), ...) {
+      list(status = "No survey participants found.")
+    },
+    .package = "limer"
+  )
+
+  expect_error(
+    get_participants(
+      123,
+      iLimit = 10000,
+      tid = TRUE,
+      bUnused = FALSE,
+      chunksize = 5000
+    ),
+    "No survey participants found"
+  )
 })
 
 test_that("resolve_list_participants_a_attributes never returns bare TRUE", {

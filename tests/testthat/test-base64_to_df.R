@@ -41,3 +41,30 @@ test_that("base64_to_df handles a single-column CSV", {
   expect_equal(ncol(result), 1)
   expect_equal(result$onlycol, c("x", "y"))
 })
+
+test_that("base64_to_df check.names = FALSE preserves spaces and parentheses", {
+  csv_text <- paste0(
+    "\"Gibt es ...Kommune...Kommunale Einrichtung(en)\"\r\n",
+    "1\r\n"
+  )
+  encoded <- base64enc::base64encode(charToRaw(csv_text))
+
+  result <- base64_to_df(encoded, check.names = FALSE)
+
+  expect_equal(
+    colnames(result),
+    "Gibt es ...Kommune...Kommunale Einrichtung(en)"
+  )
+})
+
+test_that("base64_to_df check.names = TRUE mangles spaces and parentheses", {
+  csv_text <- paste0(
+    "\"Kommunale Einrichtung(en)\"\r\n",
+    "1\r\n"
+  )
+  encoded <- base64enc::base64encode(charToRaw(csv_text))
+
+  result <- base64_to_df(encoded, check.names = TRUE)
+
+  expect_equal(colnames(result), "Kommunale.Einrichtung.en.")
+})

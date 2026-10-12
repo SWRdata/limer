@@ -56,18 +56,12 @@ get_participants <- function(iSurveyID,
 
   dots <- list(...)
   if ("limit" %in% names(dots)) {
-    message(
-      "`limit` is forwarded to `iLimit`. ",
-      "Did you mean parameter 'iLimit'?"
-    )
+    message("`limit` is forwarded to `iLimit`. ")
     iLimit <- dots$limit
     dots$limit <- NULL
   }
   if ("start" %in% names(dots)) {
-    message(
-      "`start` is forwarded to `iStart`. ",
-      "Did you mean parameter 'iStart'?"
-    )
+    message("`start` is forwarded to `iStart`. ")
     iStart <- dots$start
     dots$start <- NULL
   }
@@ -80,16 +74,18 @@ get_participants <- function(iSurveyID,
 
   # for php memory problems split iLimit in chunks
   if (iLimit > chunksize) {
-    n <- iLimit / chunksize
-    iLimit <- chunksize
+    requested_limit <- as.integer(iLimit)
+    n_chunks <- as.integer(ceiling(requested_limit / chunksize))
     all_chunks <- list()
-    for (i in 1:n) {
+    rows_so_far <- 0L
+    for (i in seq_len(n_chunks)) {
+      this_limit <- min(as.integer(chunksize), requested_limit - rows_so_far)
       # param order matches the documented API order:
       # iSurveyID, iStart, iLimit, bUnused, aAttributes
       params <- list(
         "iSurveyID" = iSurveyID,
         "iStart" = iStart,
-        "iLimit" = iLimit,
+        "iLimit" = this_limit,
         "bUnused" = bUnused,
         "aAttributes" = aAttributes
       )
@@ -98,20 +94,40 @@ get_participants <- function(iSurveyID,
         c(list(method = "list_participants", params = params), dots)
       )
 
+      # Past the end of the token table: later chunks return this status.
+      # Keep earlier chunks instead of failing the whole request.
       if (is_error_response(df)) {
+        if (identical(df$status, "No survey participants found.") &&
+            length(all_chunks) > 0L) {
+          break
+        }
         stop(df$status, call. = FALSE)
       }
 
       chunk_data <- participants_response_to_dataframe(df)
-      if (nrow(chunk_data) > 0 && chunk_data[1, 1] == "No survey participants found.") {
+      if (nrow(chunk_data) > 0 &&
+          identical(as.character(chunk_data[1, 1]),
+                    "No survey participants found.")) {
+        if (length(all_chunks) > 0L) {
+          break
+        }
         stop("No survey participants found.", call. = FALSE)
       }
       all_chunks[[i]] <- chunk_data
-      iStart <- iStart + chunksize + 1
-      cat("\r", round((i / n) * 100, digits = 2), "%")
+      rows_so_far <- rows_so_far + nrow(chunk_data)
+      # Short page means no further rows; stop requesting.
+      if (nrow(chunk_data) < this_limit) {
+        break
+      }
+      iStart <- iStart + this_limit
+      cat("\r", round((i / n_chunks) * 100, digits = 2), "%")
       utils::flush.console()
     }
-    data <- dplyr::bind_rows(all_chunks)
+    data <- if (length(all_chunks) == 0L) {
+      data.frame()
+    } else {
+      dplyr::bind_rows(all_chunks)
+    }
   } else {
     params <- list(
       "iSurveyID" = iSurveyID,

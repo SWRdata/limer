@@ -56,8 +56,14 @@ get_response_table_columns <- function(iSurveyID, verbose = FALSE,
       call. = FALSE
     )
 
-  df <- base64_to_df(raw)
+  df <- base64_to_df(
+    raw,
+    check.names = !identical(sHeadingType, "full")
+  )
   cols <- colnames(df)
+  if (identical(sHeadingType, "full")) {
+    cols <- clean_full_heading_names(cols)
+  }
 
   if (verbose)
     message(length(cols), " columns found for survey ", iSurveyID)

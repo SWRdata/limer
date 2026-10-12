@@ -128,3 +128,55 @@ test_that("format_tid_group_label formats compact tid lists", {
     "tid 1, 2, 3, … (5 tids)"
   )
 })
+
+test_that("fetch_participant_mail_state uses modest iLimit for small tid", {
+  captured_limit <- NULL
+  testthat::local_mocked_bindings(
+    get_participants = function(iSurveyID, ..., iLimit) {
+      captured_limit <<- iLimit
+      data.frame(
+        tid = 1L,
+        token = "abc",
+        email = "a@b.de",
+        emailstatus = "OK",
+        sent = "N",
+        completed = "N",
+        remindersent = "N",
+        remindercount = "0",
+        usesleft = "1",
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "limer"
+  )
+
+  state <- limer:::fetch_participant_mail_state(825549L, 1L)
+  expect_equal(captured_limit, 1000L)
+  expect_true(state[[1]]$found)
+  expect_false(state[[1]]$lookup_failed)
+})
+
+test_that("fetch_participant_mail_state scales iLimit with high tid", {
+  captured_limit <- NULL
+  testthat::local_mocked_bindings(
+    get_participants = function(iSurveyID, ..., iLimit) {
+      captured_limit <<- iLimit
+      data.frame(
+        tid = 8500L,
+        token = "abc",
+        email = "a@b.de",
+        emailstatus = "OK",
+        sent = "N",
+        completed = "N",
+        remindersent = "N",
+        remindercount = "0",
+        usesleft = "1",
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "limer"
+  )
+
+  limer:::fetch_participant_mail_state(825549L, 8500L)
+  expect_equal(captured_limit, 8600L)
+})
