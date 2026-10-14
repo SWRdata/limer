@@ -105,7 +105,7 @@ limesurvey_tech_response_cols <- function() {
     # German full headings
     "Antwort ID", "Antwort-ID", "Datum abgeschickt", "Datum gestartet",
     "Letzte Seite", "Startsprache", "IP-Adresse", "Referrer-URL", "Start-Sprache",
-    "Referrer URL", "Zufallsstartwert","Datum letzte Aktivität",
+    "Referrer URL", "Zufallsstartwert", "Datum letzte Aktivit\u00e4t",
     # English full headings
     "Response ID", "Date submitted", "Date started", "Last page",
     "Start language", "IP address", "Referrer url"
@@ -234,8 +234,7 @@ merge_participant_data <- function(df, iSurveyID) {
     !is.na(response_tokens) & nzchar(trimws(response_tokens))
   ]
   participants <- participants[
-    as.character(participants$token) %in% response_tokens,
-    ,
+    as.character(participants$token) %in% response_tokens, ,
     drop = FALSE
   ]
   if (nrow(participants) == 0L) {
