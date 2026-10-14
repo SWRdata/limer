@@ -1,7 +1,7 @@
 Package: limer
 Type: Package
 Title: A LimeSurvey R Client
-Version: 0.2
+Version: 0.2.1
 Date: 2026-10-07
 Encoding: UTF-8
 Authors@R: c(
@@ -32,5 +32,5 @@ BugReports: https://github.com/cloudyr/limer/issues
 Suggests: 
     testthat (>= 3.0.0),
     withr
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1
 Config/testthat/edition: 3
