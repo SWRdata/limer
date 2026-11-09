@@ -75,6 +75,9 @@ get_responses <- function(iSurveyID, sDocumentType = "csv", sLanguageCode = NULL
     df <- merge_participant_data(df, iSurveyID)
   }
 
+
+  colnames(df) <- sanitize_column_names(colnames(df))
+
   return(df)
 }
 

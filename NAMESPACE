@@ -41,6 +41,7 @@ export(mail_survey_reminder)
 export(release_session_key)
 export(remind_participants)
 export(reset_survey)
+export(sanitize_column_names)
 export(set_participant_properties)
 import(httr)
 importFrom(httr,
